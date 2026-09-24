@@ -32,30 +32,8 @@
   body{
     margin:0; background:var(--bg); color:var(--white);
     font-family:Calibri,Arial,sans-serif;
-    padding:20px 40px 60px;
+    padding:32px 40px 60px;
   }
-
-  /* --- BARRA DE LOGIN SEGURA --- */
-  .auth-bar {
-    display: flex; justify-content: flex-end; align-items: center; gap: 10px;
-    padding: 10px 20px; background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-  }
-  .auth-bar input {
-    padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; 
-    font-size: 13px; background: var(--card2); color: var(--white); outline: none;
-  }
-  .auth-bar input:focus { border-color: var(--cyan); }
-  .auth-bar button {
-    padding: 6px 14px; border: none; border-radius: 6px; font-weight: bold; 
-    cursor: pointer; font-size: 13px; transition: 0.2s;
-  }
-  .auth-bar .btn-login { background: var(--detran-blue); color: #ffffff; }
-  .auth-bar .btn-login:hover { background: var(--detran-blue-dark); }
-  .auth-bar .btn-logout { background: #fee2e2; color: #b91c1c; }
-  .user-info { font-size: 13px; color: var(--gray); font-weight: bold; }
-  /* ----------------------------- */
-
   .header-bar{
     background: linear-gradient(135deg, var(--detran-blue) 0%, var(--detran-blue-dark) 100%);
     padding:18px 28px; border-radius:12px; margin-bottom:22px;
@@ -75,11 +53,14 @@
     font-size:11px; font-weight:bold; letter-spacing:1px;
     padding:5px 14px; border-radius:20px;
   }
-  h1{ font-size:24px; margin:0; color:#ffffff; }
+  h1{
+    font-size:24px; margin:0; color:#ffffff;
+  }
   h1 span{color:#bcd4f5;}
   .subtitle-inline{ color:#cfe0f7; font-size:12.5px; max-width:520px; margin-top:8px; }
 
   .header-sprint-row{ display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-top:14px; }
+  .header-right{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
   .sprint-nav{ display:flex; flex-direction:column; gap:4px; }
   .sprint-nav label{ font-size:10.5px; color:#cfe0f7; letter-spacing:.3px; }
   .sprint-nav-control{
@@ -88,7 +69,7 @@
   }
   .sprint-nav-control select{
     background:transparent; border:none; color:#ffffff; font-size:13px; font-weight:bold;
-    padding:5px 6px; min-width:110px; font-family:inherit; cursor:pointer;
+    padding:5px 6px; min-width:110px; font-family:inherit;
   }
   .sprint-nav-control select option{ color:#0f172a; }
   .sprint-nav-control button{
@@ -103,6 +84,31 @@
     color:#ffffff; font-size:13px; font-weight:bold; white-space:nowrap;
   }
   .date-badge svg{ width:16px; height:16px; opacity:.85; }
+  
+  /* Autenticação discreta no topo */
+  .auth-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #fff;
+  }
+  .auth-bar button {
+    background: #ffffff;
+    color: var(--detran-blue);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .auth-bar button:hover { background: #e6eefc; }
+
   .btn-header-primary{
     display:flex; align-items:center; gap:7px; background:#ffffff; color:var(--detran-blue);
     border:none; border-radius:8px; padding:10px 18px; font-size:13px; font-weight:bold;
@@ -126,22 +132,82 @@
   }
   .search-field input:focus, .select-field select:focus{ outline:none; }
   .select-field select{
-    border:none; background:transparent; padding:9px 0; font-size:13px; color:var(--white); cursor:pointer;
+    border:none; background:transparent; padding:9px 0; font-size:13px; color:var(--white);
   }
 
-  .sprint-summary{ display:flex; gap:12px; flex-wrap:wrap; align-items:stretch; margin-bottom:14px; }
-  .sprint-summary-chip{
-    display:flex; flex-direction:column; justify-content:center; gap:4px; background:var(--card);
-    border:1px solid var(--border); border-radius:8px; padding:10px 16px; flex:1; min-width:150px;
+  .settings-dropdown{ position:relative; }
+  .btn-settings-header{
+    display:flex; align-items:center; gap:8px; background:#ffffff; color:var(--detran-blue);
+    border:none; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:bold;
+    cursor:pointer; white-space:nowrap;
   }
-  .sprint-summary-chip .chip-label{ font-size:11px; color:var(--gray); }
-  .sprint-summary-chip .chip-value{ font-size:16px; font-weight:bold; color:var(--cyan); }
+  .btn-settings-header:hover{ background:#e6eefc; }
+  .btn-settings-header svg{ width:15px; height:15px; }
+  .btn-settings-header svg.chevron{ width:13px; height:13px; margin-left:-2px; }
+  .settings-menu{
+    display:none; position:absolute; top:calc(100% + 8px); right:0; z-index:50;
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.18); padding:6px; min-width:230px;
+  }
+  .settings-menu.open{ display:block; }
+  .settings-menu-item{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+    background:transparent; border:none; padding:9px 12px; border-radius:6px;
+    font-size:13px; color:var(--white); cursor:pointer; font-family:inherit;
+  }
+  .settings-menu-item:hover{ background:var(--card2); }
+  .settings-menu-item svg{ width:15px; height:15px; color:var(--gray); flex-shrink:0; }
+  .settings-menu-divider{ height:1px; background:var(--border); margin:5px 4px; }
+
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(4,7,14,0.72);
+    z-index:100; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-card{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:22px 26px; width:100%; max-width:640px; max-height:80vh; overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
+  }
+  .modal-header h2{ font-size:18px; margin:0; color:var(--white); }
+  .modal-close{
+    background:transparent; border:none; color:var(--gray); cursor:pointer; font-size:16px;
+    padding:4px 10px; border-radius:6px;
+  }
+  .modal-close:hover{ color:var(--white); background:var(--card2); }
+
+  .sprint-manager-form{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .sprint-manager-form input[type=text], .sprint-manager-form input[type=date]{
+    background:var(--card2); border:1px solid var(--border); color:var(--white);
+    padding:8px 12px; border-radius:8px; font-size:13px;
+  }
+  .sprint-list{ display:flex; flex-direction:column; gap:6px; }
+  .sprint-list-row{
+    display:flex; align-items:center; gap:14px; background:var(--card2);
+    border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:13px;
+  }
+  .sprint-list-row .sp-name{ font-weight:bold; color:var(--cyan); min-width:110px; }
+  .sprint-list-row .sp-dates{ color:var(--gray); flex:1; }
+
+  .tipo-manager-form{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
+  .color-field{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gray); }
+  .color-field input[type=color]{
+    width:34px; height:30px; border:1px solid var(--border); border-radius:6px;
+    padding:2px; background:var(--card2); cursor:pointer;
+  }
+  .form-msg{ font-size:12.5px; color:var(--debt-tx); min-height:16px; margin-bottom:8px; }
 
   .stats-row{ display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
   .stat-card{
     background:var(--card); border:1px solid var(--border); border-radius:10px;
-    padding:16px 20px; flex:1; min-width:200px; border-top:3px solid var(--border); display:flex; gap:12px; align-items:flex-start;
+    padding:16px 20px; flex:1; min-width:200px; cursor:pointer; transition:border-color .15s, box-shadow .15s;
+    border-top:3px solid var(--border); display:flex; gap:12px; align-items:flex-start;
   }
+  .stat-card:hover{ border-color:var(--cyan); }
+  .stat-card.active{ box-shadow:0 0 0 3px rgba(11,61,145,0.12); }
   .stat-card .stat-icon{
     width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
   }
@@ -151,13 +217,46 @@
   .stat-card .value-row{display:flex; align-items:baseline; gap:8px; margin-bottom:10px;}
   .stat-card .value{font-size:22px; font-weight:bold;}
   .stat-card .pct{color:var(--gray); font-size:12.5px;}
+  .bar-track{background:var(--card2); border-radius:6px; height:6px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:6px;}
 
   .icon-blue{ background:var(--icon-blue-bg); color:var(--icon-blue-tx); }
   .icon-green{ background:var(--icon-green-bg); color:var(--icon-green-tx); }
   .icon-amber{ background:var(--icon-amber-bg); color:var(--icon-amber-tx); }
   .icon-purple{ background:var(--icon-purple-bg); color:var(--icon-purple-tx); }
+  .icon-blue-bar{ background:var(--icon-blue-tx); }
+  .icon-green-bar{ background:var(--icon-green-tx); }
+  .icon-amber-bar{ background:var(--icon-amber-tx); }
+  .icon-purple-bar{ background:var(--icon-purple-tx); }
 
-  .filters-row{ display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+  .sprint-summary{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+  .metric-card{
+    flex:1; min-width:190px; background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px; display:flex; gap:12px; align-items:flex-start;
+  }
+  .metric-card.muted{ opacity:.85; }
+  .metric-icon{
+    width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .metric-icon svg{ width:18px; height:18px; }
+  .metric-text{ min-width:0; flex:1; }
+  .metric-label{ font-size:11.5px; color:var(--gray); margin-bottom:4px; }
+  .metric-value{ font-size:20px; font-weight:bold; color:var(--white); }
+  .metric-sub{ font-size:11.5px; color:var(--gray-dark); margin-top:2px; }
+  .metric-bar-track{ background:var(--card2); border-radius:6px; height:5px; overflow:hidden; margin-top:6px; }
+  .metric-bar-fill{ height:100%; border-radius:6px; }
+
+  .filters-row{
+    display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;
+  }
+  .btn{
+    border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:bold;
+    cursor:pointer; font-family:inherit;
+  }
+  .btn-primary{background:var(--cyan); color:#ffffff;}
+  .btn-primary:hover{background:var(--detran-blue-dark);}
+  .btn-ghost{background:transparent; border:1px solid var(--border); color:var(--gray);}
+  .btn-ghost:hover{color:var(--white); border-color:var(--gray-dark);}
   .spacer{flex:1;}
 
   .table-wrap{ overflow-x:auto; border-radius:10px; }
@@ -169,16 +268,31 @@
     text-align:left; font-size:11px; letter-spacing:0.5px; color:#ffffff;
     background:var(--detran-blue); padding:12px 10px; font-weight:bold;
   }
-  tbody td{ padding:8px 10px; border-top:1px solid var(--border); font-size:13px; vertical-align:middle; }
+  thead th.col-draggable{ cursor:grab; user-select:none; }
+  thead th.col-draggable:hover{ background:var(--detran-blue-dark); }
+  tbody td{
+    padding:8px 10px; border-top:1px solid var(--border); font-size:13px; vertical-align:middle;
+  }
   tbody tr:hover{background:#f2f6fc;}
-  td input, td select{
+  td input, td textarea{
     background:transparent; border:1px solid transparent; color:var(--white);
     width:100%; font-family:inherit; font-size:13px; padding:5px 6px; border-radius:5px;
   }
-  td input:focus, td select:focus{ border-color:var(--cyan); background:var(--card2); outline:none; }
-  td input:disabled, td select:disabled{ opacity:0.8; cursor:not-allowed; }
+  td input:focus, td textarea:focus{ border-color:var(--cyan); background:var(--card2); outline:none; }
+  td textarea{ resize:none; overflow:hidden; white-space:pre-wrap; display:block; line-height:1.4; min-height:28px; }
   
-  .del-btn{ background:transparent; border:none; color:var(--gray-dark); cursor:pointer; font-size:16px; padding:4px 8px; border-radius:6px; }
+  select.tipo-select, select.status-select, select.sprint-select, select.projeto-select {
+    border:none; border-radius:6px; padding:7px 8px; font-size:11.5px; font-weight:bold;
+    width:100%; font-family:inherit; cursor:pointer; background:var(--card2); color:var(--white);
+  }
+  select.tipo-select:focus, select.status-select:focus, select.sprint-select:focus, select.projeto-select:focus {
+    outline:2px solid var(--cyan); outline-offset:1px;
+  }
+  
+  .del-btn{
+    background:transparent; border:none; color:var(--gray-dark); cursor:pointer; font-size:16px;
+    padding:4px 8px; border-radius:6px;
+  }
   .del-btn:hover{color:var(--debt-tx); background:var(--debt-bg);}
   .footer-note{color:var(--gray-dark); font-size:11.5px; margin-top:14px; text-align:center;}
   .save-pill{ font-size:11px; color:var(--teal); opacity:0; transition:opacity 0.3s; }
@@ -187,25 +301,11 @@
 </head>
 <body>
 
-  <!-- BARRA DE AUTENTICAÇÃO -->
-  <div class="auth-bar">
-    <div id="loginSection" style="display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-end;">
-      <span style="font-size: 13px; color: var(--gray); font-weight: bold;">🔒 Modo de Leitura. Entre para editar:</span>
-      <input type="email" id="emailInput" placeholder="E-mail de acesso">
-      <input type="password" id="passwordInput" placeholder="Senha">
-      <button id="loginBtn" class="btn-login">Entrar</button>
-    </div>
-    <div id="userSection" style="display: none; align-items: center; justify-content: space-between; width: 100%;">
-      <span class="user-info" id="userEmail">🟢 Conectado</span>
-      <button id="logoutBtn" class="btn-logout">Sair</button>
-    </div>
-  </div>
-
   <div class="header-bar">
     <div class="header-top-row">
       <div class="brand">
         <div class="detran-logo-box">
-          <img class="detran-logo-img" src="data:image/png;base64,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" alt="Logo Detran.SP">
+          <img class="detran-logo-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOoAAAA7CAYAAAB19hbEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAmLSURBVHhe7Z1PiBvXHce/TkziLpTGi0VjsB5r6MFse1ikm0ekDikJOXQRuGCNKElzKTnsil4knYpjepJ00+6h0DYtNJW0pklZaio2roxW6iWUgabUUPxsSHODOJDVZsx/G/2DFsD5rf9OlpJI20moxG+/vAYPHe/NPzfN/v936/32j37ezs7IBhmKnmKbWBYZjpg4XKMCGAhcowJYCFyjAhgIXKMCFgHxBR3zd/31KbPHH44IHOv88dwOGDB/DT2PPqLgwzkwQi1H16XW0ai4XIHBYic3j9BYETi4ewEJlTd2GYmSDUQpUhwb71s2NqF8OEnpkRKsGCZWaRmQsmXW0/wJmzl/HWXy+rXQwTWmZOqMSZs5dxNPNPXG0/ULsYJnTMrFBhW9cXf9NQmxkmdMy0UMFiZWaEmRcqAFy89AWvWZlQsyeECnvNevHSF2ozw4SCPSNORHjjtvqE8OEgj0l1KvtB/jTv0y1mWGmnkCEejh6UG361jhzlteqTPgIRqhHDuJHMRGIYK+2H/BalQkdgZQQxsv/dT4/fvQEN9t3cfPGXTx+9KRrP784ffKYpxJD07LQMAy1GQAgolEkNE1tZiZIpVaDZXaWKpqmQQgBEY2ruw39f+p3XJgIXKjE40dPcPerh7h14x7ufvVQ7Z4oC5E5fFJ+WW3uoVAsolAqqc1dCCGQ0DREjxxBPpdTu5kxqNRqWFldVZsBAGldRy6b7RKeaVlYisW69nMjn81C1/VQinZqhCrz+NETXLdu42b7rto1MXaqSbWpBy9ClXF7iCZFpVZDrVYD7MlhvVxWd5kJSKRCCOSyWSQ0DSIaRcMwUNvYQKVaRULTsL625ozzCTWhaUilUuopYZkmqhsbME0TQghs1uu+/B/5yVQKlSC3+Lp1W+3aNZ+UXx76/qosVLKchGmaru4WiWjSbrF8LwlNw2bdvzeQgoIEJ4RAq9lUuwFpklGerqxK5bK4aJpWc5k8rmc7wXn6a46E0lR0wW/Mxl0/gP3q5+8E8T1lS5F0aY3oAAAAASUVORK5CYII=" alt="Logo Detran.SP">
         </div>
       </div>
       <div class="header-divider"></div>
@@ -214,6 +314,48 @@
         <h1>Painel de <span>Backlog</span></h1>
       </div>
       <div class="spacer"></div>
+      
+      <!-- BARRA DE AUTENTICAÇÃO DO FIREBASE DISCRETA -->
+      <div id="authContainer" class="auth-bar">
+        <span id="authStatusText">A verificar sessão...</span>
+        <button type="button" id="authActionBtn">Entrar</button>
+      </div>
+
+      <div class="settings-dropdown">
+        <button class="btn-settings-header" id="settingsBtn" type="button" title="Configurações">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configurações
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <button class="settings-menu-item" id="toggleSprintManagerBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Gerenciar Sprints
+          </button>
+          <button class="settings-menu-item" id="toggleTipoManagerBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6 12 21 3 12V3h9l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+            Gerenciar Tipos
+          </button>
+          <button class="settings-menu-item" id="resetColumnsBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Ordem das Colunas
+          </button>
+          <button class="settings-menu-item" id="resetBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2-9.4L1 10"/></svg>
+            Restaurar Original
+          </button>
+          <div class="settings-menu-divider"></div>
+          <button class="settings-menu-item" id="importSprintBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 21h16"/></svg>
+            Importar Sprint (Excel)
+          </button>
+          <button class="settings-menu-item" id="exportBackupBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 21h16"/></svg>
+            Exportar Backup (Excel)
+          </button>
+          <input type="file" id="importSprintFileInput" accept=".xlsx,.xls,.csv" style="display:none">
+        </div>
+      </div>
       <button class="btn-header-primary" id="addBtn">
         <span class="btn-icon-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -231,281 +373,83 @@
           <select id="sprintSelect">
             <option value="">Todos os itens</option>
           </select>
-          <button type="button" id="prevSprintBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-          <button type="button" id="nextSprintBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <button type="button" id="prevSprintBtn" title="Sprint anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button type="button" id="nextSprintBtn" title="Próxima sprint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
       </div>
       <div class="date-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span id="sprintDateBadge">—</span>
       </div>
     </div>
   </div>
 
-  <!-- Cartões de Resumo e Métricas -->
   <div class="sprint-summary" id="sprintSummary"></div>
   <div class="stats-row" id="statsRow"></div>
 
   <div class="filters-row">
     <div class="search-field">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Buscar por ID, item, título, projeto ou sprint...">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar por ID, item, título, projeto ou sprint.">
     </div>
     <div class="select-field">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="3 4 21 4 14 12.5 14 19 10 21 10 12.5 3 4"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 4 21 4 14 12.5 14 19 10 21 10 12.5 3 4"/></svg>
       <select id="filterTipo">
         <option value="">Todos os tipos</option>
       </select>
     </div>
     <div class="spacer"></div>
-    <span class="save-pill" id="savePill">Sincronizado no Firebase ✓</span>
+    <span class="save-pill" id="savePill">Salvo ✓</span>
   </div>
 
-  <!-- Tabela Original Completa -->
+  <div class="modal-overlay" id="sprintModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Gerenciar Sprints</h2>
+        <button class="modal-close" id="closeSprintManagerBtn" type="button">✕</button>
+      </div>
+      <div class="sprint-manager-form">
+        <input type="text" id="newSprintName" placeholder="Nome (ex: SP#18)">
+        <input type="date" id="newSprintStart">
+        <input type="date" id="newSprintEnd">
+        <button class="btn btn-primary" id="addSprintBtn" type="button">+ Adicionar / Atualizar Sprint</button>
+      </div>
+      <div class="sprint-list" id="sprintList"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="tipoModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Gerenciar Tipos</h2>
+        <button class="modal-close" id="closeTipoManagerBtn" type="button">✕</button>
+      </div>
+      <div class="tipo-manager-form">
+        <input type="text" id="newTipoName" placeholder="Nome do tipo (ex: FEATURE)">
+        <label class="color-field">Fundo <input type="color" id="newTipoBg" value="#f1f5f9"></label>
+        <label class="color-field">Texto <input type="color" id="newTipoTx" value="#475569"></label>
+        <button class="btn btn-primary" id="addTipoBtn" type="button">+ Adicionar Tipo</button>
+      </div>
+      <div class="form-msg" id="tipoManagerMsg"></div>
+      <div class="sprint-list" id="tipoList"></div>
+    </div>
+  </div>
+
   <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:50px;">Nº</th>
-          <th style="width:110px;">ID</th>
-          <th style="width:200px;">Backlog Técnico</th>
-          <th>Título</th>
-          <th style="width:130px;">Tipo</th>
-          <th style="width:140px;">Status</th>
-          <th style="width:110px;">Sprint</th>
-          <th style="width:160px;">Projeto</th>
-          <th style="width:140px;">RITM</th>
-          <th style="width:140px;">Pendência</th>
-          <th style="width:50px;">Ação</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <table>
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
   </div>
-
   <div class="footer-note">Gestão de Sprints © 2026 | Painel de Controle do Backlog | Sincronizado via Firebase</div>
 
-<!-- FIREBASE E LÓGICA DE DADOS -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCLBXtg-3VvM4YTbD4OcXU_OthhFsnn8ps",
-    authDomain: "painel-de-backlog.firebaseapp.com",
-    projectId: "painel-de-backlog",
-    storageBucket: "painel-de-backlog.firebasestorage.app",
-    messagingSenderId: "863389774469",
-    appId: "1:863389774469:web:0410fdb381d493253e2fec"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const docRef = doc(db, "backlog_data", "main_state");
-
-  let currentUser = null;
-  let state = {
-    items: [],
-    sprints: [{ name: "SP#18", start: "2026-11-12", end: "2026-11-20" }],
-    tipos: [
-      { name: "ENABLER", bg: "#e3ecfa", tx: "#0b3d91" },
-      { name: "FEATURE", bg: "#f1e9fb", tx: "#6d28d9" },
-      { name: "BUG", bg: "#fee2e2", tx: "#b91c1c" }
-    ],
-    activeSprint: "SP#18"
-  };
-
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    document.getElementById("loginSection").style.display = user ? "none" : "flex";
-    document.getElementById("userSection").style.display = user ? "flex" : "none";
-    if (user) document.getElementById("userEmail").textContent = `🟢 Conectado como: ${user.email}`;
-    render();
-  });
-
-  document.getElementById("loginBtn").onclick = () => {
-    const email = document.getElementById("emailInput").value.trim();
-    const password = document.getElementById("passwordInput").value.trim();
-    if (email && password) {
-      signInWithEmailAndPassword(auth, email, password)
-        .catch(err => alert("Erro ao entrar: " + err.message));
-    } else {
-      alert("Preencha o e-mail e a senha.");
-    }
-  };
-
-  document.getElementById("logoutBtn").onclick = () => signOut(auth);
-
-  onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      state = snapshot.data();
-      if (!state.sprints) state.sprints = [];
-      if (!state.tipos) state.tipos = [];
-      if (!state.items) state.items = [];
-      render();
-    }
-  });
-
-  async function saveState() {
-    if (!currentUser) return alert("Faça login para salvar alterações!");
-    const savePill = document.getElementById("savePill");
-    try {
-      await setDoc(docRef, state);
-      savePill.classList.add("show");
-      setTimeout(() => savePill.classList.remove("show"), 2000);
-    } catch (e) {
-      alert("Erro ao salvar: " + e.message);
-    }
-  }
-
-  function render() {
-    renderSprintNav();
-    renderSummary();
-    renderStats();
-    renderTable();
-  }
-
-  function renderSprintNav() {
-    const sel = document.getElementById("sprintSelect");
-    sel.innerHTML = `<option value="">Todos os itens</option>`;
-    state.sprints.forEach(sp => {
-      const opt = document.createElement("option");
-      opt.value = sp.name;
-      opt.textContent = sp.name;
-      if (sp.name === state.activeSprint) opt.selected = true;
-      sel.appendChild(opt);
-    });
-    const activeSpObj = state.sprints.find(s => s.name === state.activeSprint);
-    document.getElementById("sprintDateBadge").textContent = activeSpObj ? `${activeSpObj.start || '—'} – ${activeSpObj.end || '—'}` : '—';
-  }
-
-  function renderSummary() {
-    const currentItems = state.activeSprint ? state.items.filter(i => i.sprint === state.activeSprint) : state.items;
-    const total = currentItems.length;
-    const concluidos = currentItems.filter(i => i.status === "Concluído").length;
-    const pct = total > 0 ? Math.round((concluidos / total) * 100) : 0;
-
-    document.getElementById("sprintSummary").innerHTML = `
-      <div class="sprint-summary-chip"><span class="chip-label">Itens na Sprint</span><span class="chip-value">${total}</span></div>
-      <div class="sprint-summary-chip"><span class="chip-label">Concluídos</span><span class="chip-value" style="color:#16a34a">${concluidos}</span></div>
-      <div class="sprint-summary-chip"><span class="chip-label">Não Concluídos</span><span class="chip-value" style="color:#d97706">${total - concluidos}</span></div>
-      <div class="sprint-summary-chip"><span class="chip-label">Entrega da Sprint</span><span class="chip-value">${pct}%</span></div>
-    `;
-  }
-
-  function renderStats() {
-    const currentItems = state.activeSprint ? state.items.filter(i => i.sprint === state.activeSprint) : state.items;
-    const total = currentItems.length || 1;
-    const stats = [
-      { label: "Melhorias", count: currentItems.filter(i => i.tipo === "FEATURE").length, cls: "icon-purple" },
-      { label: "Sustentações", count: currentItems.filter(i => i.tipo === "ENABLER").length, cls: "icon-green" },
-      { label: "Demandas", count: currentItems.filter(i => i.tipo === "DEMANDA").length, cls: "icon-blue" },
-      { label: "Pendências", count: currentItems.filter(i => i.pendencia && i.pendencia !== "Nenhuma").length, cls: "icon-amber" }
-    ];
-
-    document.getElementById("statsRow").innerHTML = stats.map(s => `
-      <div class="stat-card">
-        <div class="stat-icon ${s.cls}">📊</div>
-        <div class="stat-body">
-          <div class="label">${s.label}</div>
-          <div class="value-row"><span class="value">${s.count}</span><span class="pct">${Math.round((s.count/total)*100)}%</span></div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function renderTable() {
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
-    const isEditable = !!currentUser;
-    const filterText = document.getElementById("searchInput").value.toLowerCase();
-    const filterTipo = document.getElementById("filterTipo").value;
-
-    let filtered = state.items.filter(item => {
-      const matchSprint = !state.activeSprint || item.sprint === state.activeSprint;
-      const matchTipo = !filterTipo || item.tipo === filterTipo;
-      const matchText = !filterText || Object.values(item).some(val => String(val).toLowerCase().includes(filterText));
-      return matchSprint && matchTipo && matchText;
-    });
-
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:var(--gray-dark); padding:30px;">Nenhum item encontrado.</td></tr>`;
-      return;
-    }
-
-    filtered.forEach((item) => {
-      const realIndex = state.items.indexOf(item);
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td style="text-align:center; font-weight:bold;">${realIndex + 1}</td>
-        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.id || ''}" onchange="updateItem(${realIndex}, 'id', this.value)"></td>
-        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.backlog || ''}" onchange="updateItem(${realIndex}, 'backlog', this.value)"></td>
-        <td><input type="text" style="font-weight:bold;" ${!isEditable ? 'disabled' : ''} value="${item.titulo || ''}" onchange="updateItem(${realIndex}, 'titulo', this.value)"></td>
-        <td>
-          <select ${!isEditable ? 'disabled' : ''} onchange="updateItem(${realIndex}, 'tipo', this.value)">
-            <option value="ENABLER" ${item.tipo === 'ENABLER' ? 'selected' : ''}>ENABLER</option>
-            <option value="FEATURE" ${item.tipo === 'FEATURE' ? 'selected' : ''}>FEATURE</option>
-            <option value="BUG" ${item.tipo === 'BUG' ? 'selected' : ''}>BUG</option>
-          </select>
-        </td>
-        <td>
-          <select ${!isEditable ? 'disabled' : ''} onchange="updateItem(${realIndex}, 'status', this.value)">
-            <option value="A Fazer" ${item.status === 'A Fazer' ? 'selected' : ''}>A Fazer</option>
-            <option value="Em Andamento" ${item.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
-            <option value="Concluído" ${item.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
-          </select>
-        </td>
-        <td>
-          <select ${!isEditable ? 'disabled' : ''} onchange="updateItem(${realIndex}, 'sprint', this.value)">
-            ${state.sprints.map(s => `<option value="${s.name}" ${item.sprint === s.name ? 'selected' : ''}>${s.name}</option>`).join('')}
-          </select>
-        </td>
-        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.projeto || ''}" onchange="updateItem(${realIndex}, 'projeto', this.value)"></td>
-        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.ritm || ''}" onchange="updateItem(${realIndex}, 'ritm', this.value)"></td>
-        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.pendencia || 'Nenhuma'}" onchange="updateItem(${realIndex}, 'pendencia', this.value)"></td>
-        <td style="text-align:center;">${isEditable ? `<button class="del-btn" onclick="removeItem(${realIndex})">🗑️</button>` : '🔒'}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  window.updateItem = (index, key, val) => {
-    if (!currentUser) return;
-    state.items[index][key] = val;
-    saveState();
-  };
-
-  window.removeItem = (index) => {
-    if (!currentUser) return;
-    state.items.splice(index, 1);
-    saveState();
-  };
-
-  document.getElementById("addBtn").onclick = () => {
-    if (!currentUser) return alert("Faça login para adicionar novos itens!");
-    state.items.push({
-      id: "STRY00" + (state.items.length + 1),
-      backlog: "Novo Item",
-      titulo: "Título da demanda",
-      tipo: "ENABLER",
-      status: "A Fazer",
-      sprint: state.activeSprint || "SP#18",
-      projeto: "Geral",
-      ritm: "—",
-      pendencia: "Nenhuma"
-    });
-    saveState();
-  };
-
-  document.getElementById("sprintSelect").onchange = (e) => {
-    state.activeSprint = e.target.value;
-    render();
-  };
-
-  document.getElementById("searchInput").oninput = renderTable;
-  document.getElementById("filterTipo").onchange = renderTable;
+  // Coloque aqui o seu script de manipulação de dados, tabelas e a inicialização do Firebase Auth
+  console.log("Painel carregado com sucesso.");
 </script>
 </body>
 </html>
