@@ -2,368 +2,1946 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Backlog</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <style>
-  :root {
-    --primary: #0b3d91;
-    --primary-dark: #082a66;
-    --bg: #f4f6f9;
-    --card: #ffffff;
-    --border: #e1e8ed;
-    --text: #2c3e50;
-    --text-muted: #7f8c8d;
-    --danger: #e74c3c;
+  :root{
+    --bg:#eef1f6;
+    --card:#ffffff;
+    --card2:#f3f6fa;
+    --border:#d7e2f2;
+    --detran-blue:#0b3d91;
+    --detran-blue-dark:#082a66;
+    --cyan:#0b3d91;
+    --teal:#3b78c4;
+    --white:#1f2937;
+    --gray:#5b6b7c;
+    --gray-dark:#8a97a6;
+    --enabler-bg:#e3ecfa; --enabler-tx:#0b3d91;
+    --split-bg:#f1e9fb;  --split-tx:#6d28d9;
+    --ritm-bg:#fef9c3;   --ritm-tx:#713f12;
+    --debt-bg:#fee2e2;   --debt-tx:#b91c1c;
+    --ok-bg:#f8fafc;     --ok-tx:#94a3b8;
+    --warn-bg:#fef3c7;   --warn-tx:#92400e;
+    --icon-blue-bg:#e3ecfa;   --icon-blue-tx:#0b3d91;
+    --icon-green-bg:#dcfce7;  --icon-green-tx:#16a34a;
+    --icon-amber-bg:#fef3c7;  --icon-amber-tx:#d97706;
+    --icon-purple-bg:#f1e9fb; --icon-purple-tx:#7c3aed;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--white);
+    font-family:Calibri,Arial,sans-serif;
+    padding:32px 40px 60px;
+  }
+  .header-bar{
+    background: linear-gradient(135deg, var(--detran-blue) 0%, var(--detran-blue-dark) 100%);
+    padding:18px 28px; border-radius:12px; margin-bottom:22px;
+  }
+  .header-top-row{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .detran-logo-box{
+    background:#ffffff; border-radius:8px; padding:8px 14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .detran-logo-img{ height:26px; width:auto; display:block; }
+  .header-divider{ width:1px; align-self:stretch; background:rgba(255,255,255,0.25); }
+  .header-titles{ display:flex; flex-direction:column; gap:4px; justify-content:center; }
+  .eyebrow{
+    display:inline-block; width:fit-content; border:1px solid rgba(255,255,255,0.5); color:#ffffff;
+    background:rgba(255,255,255,0.08);
+    font-size:11px; font-weight:bold; letter-spacing:1px;
+    padding:5px 14px; border-radius:20px;
+  }
+  h1{
+    font-size:24px; margin:0; color:#ffffff;
+  }
+  h1 span{color:#bcd4f5;}
+  .subtitle-inline{ color:#cfe0f7; font-size:12.5px; max-width:520px; margin-top:8px; }
+
+  .header-sprint-row{ display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-top:14px; }
+  .header-right{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
+  .sprint-nav{ display:flex; flex-direction:column; gap:4px; }
+  .sprint-nav label{ font-size:10.5px; color:#cfe0f7; letter-spacing:.3px; }
+  .sprint-nav-control{
+    display:flex; align-items:center; gap:4px; background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.3); border-radius:8px; padding:3px;
+  }
+  .sprint-nav-control select{
+    background:transparent; border:none; color:#ffffff; font-size:13px; font-weight:bold;
+    padding:5px 6px; min-width:110px; font-family:inherit;
+  }
+  .sprint-nav-control select option{ color:#0f172a; }
+  .sprint-nav-control button{
+    background:rgba(255,255,255,0.12); border:none; color:#ffffff; width:26px; height:26px;
+    border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .sprint-nav-control button:hover{ background:rgba(255,255,255,0.25); }
+  .sprint-nav-control button svg{ width:14px; height:14px; }
+  .date-badge{
+    display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.3); border-radius:8px; padding:9px 14px;
+    color:#ffffff; font-size:13px; font-weight:bold; white-space:nowrap;
+  }
+  .date-badge svg{ width:16px; height:16px; opacity:.85; }
+  .btn-header-primary{
+    display:flex; align-items:center; gap:7px; background:#ffffff; color:var(--detran-blue);
+    border:none; border-radius:8px; padding:10px 18px; font-size:13px; font-weight:bold;
+    cursor:pointer; white-space:nowrap;
+  }
+  .btn-header-primary:hover{ background:#e6eefc; }
+  .btn-header-primary svg{ width:15px; height:15px; }
+  .btn-icon-badge{
+    display:flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%; background:var(--detran-blue); color:#ffffff; flex-shrink:0;
+  }
+  .btn-icon-badge svg{ width:12px; height:12px; }
+
+  .subtitle{color:var(--gray); font-size:14px; margin-bottom:22px;}
+
+  .btn-ghost svg, .btn-primary svg{ width:14px; height:14px; vertical-align:-2px; margin-right:4px; }
+  .search-field, .select-field{
+    display:flex; align-items:center; gap:8px; background:var(--card2);
+    border:1px solid var(--border); border-radius:8px; padding:0 12px;
+  }
+  .search-field svg, .select-field svg{ width:15px; height:15px; color:var(--gray-dark); flex-shrink:0; }
+  .search-field input{
+    border:none; background:transparent; padding:9px 0; font-size:13px; min-width:220px; color:var(--white);
+  }
+  .search-field input:focus, .select-field select:focus{ outline:none; }
+  .select-field select{
+    border:none; background:transparent; padding:9px 0; font-size:13px; color:var(--white);
   }
 
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 30px 20px;
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  .settings-dropdown{ position:relative; }
+  .btn-settings{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:8px; background:var(--card2); border:1px solid var(--border);
+    color:var(--white); cursor:pointer;
+  }
+  .btn-settings:hover{ background:var(--border); }
+  .btn-settings svg{ width:18px; height:18px; }
+  .btn-settings-header{
+    display:flex; align-items:center; gap:8px; background:#ffffff; color:var(--detran-blue);
+    border:none; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:bold;
+    cursor:pointer; white-space:nowrap;
+  }
+  .btn-settings-header:hover{ background:#e6eefc; }
+  .btn-settings-header svg{ width:15px; height:15px; }
+  .btn-settings-header svg.chevron{ width:13px; height:13px; margin-left:-2px; }
+  .settings-menu{
+    display:none; position:absolute; top:calc(100% + 8px); right:0; z-index:50;
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.18); padding:6px; min-width:230px;
+  }
+  .settings-menu.open{ display:block; }
+  .settings-menu-item{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+    background:transparent; border:none; padding:9px 12px; border-radius:6px;
+    font-size:13px; color:var(--white); cursor:pointer; font-family:inherit;
+  }
+  .settings-menu-item:hover{ background:var(--card2); }
+  .settings-menu-item svg{ width:15px; height:15px; color:var(--gray); flex-shrink:0; }
+  .settings-menu-divider{ height:1px; background:var(--border); margin:5px 4px; }
+
+  .actions-row{
+    display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; align-items:center;
+    padding-top:14px; border-top:1px solid var(--border);
+  }
+  .range-field{ display:flex; flex-direction:column; gap:5px; }
+  .range-field label{ font-size:11px; color:var(--gray); letter-spacing:.3px; }
+  .range-field select{
+    background:var(--card2); border:1px solid var(--border); color:var(--white);
+    padding:8px 12px; border-radius:8px; font-size:13px; font-family:inherit;
+    color-scheme: dark; min-width:160px;
+  }
+  .sprint-caption{ font-size:11px; color:var(--gray-dark); margin-top:2px; min-height:14px; }
+
+  .sprint-summary{
+    display:flex; gap:12px; flex-wrap:wrap; align-items:stretch; margin-bottom:14px;
+  }
+  .sprint-summary-chip{
+    display:flex; flex-direction:column; justify-content:center; gap:4px; background:var(--card);
+    border:1px solid var(--border); border-radius:8px; padding:10px 16px; flex:1; min-width:150px;
+  }
+  .sprint-summary-chip .chip-label{ font-size:11px; color:var(--gray); }
+  .sprint-summary-chip .chip-value{ font-size:16px; font-weight:bold; color:var(--cyan); }
+  .sprint-summary-chip.muted{ flex-direction:row; align-items:center; }
+  .sprint-summary-chip.muted .chip-value{ color:var(--gray); font-weight:normal; font-style:italic; font-size:13px; }
+  .sprint-summary-chip.has-sub{ gap:3px; }
+  .sprint-summary-chip .chip-ids{
+    font-size:11px; font-weight:normal; color:var(--gray); max-width:280px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(4,7,14,0.72);
+    z-index:100; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-card{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:22px 26px; width:100%; max-width:640px; max-height:80vh; overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
+  }
+  .modal-header h2{ font-size:18px; margin:0; color:var(--white); }
+  .modal-close{
+    background:transparent; border:none; color:var(--gray); cursor:pointer; font-size:16px;
+    padding:4px 10px; border-radius:6px;
+  }
+  .modal-close:hover{ color:var(--white); background:var(--card2); }
+
+  .sprint-manager-form{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .sprint-manager-form input[type=text]{
+    background:var(--card2); border:1px solid var(--border); color:var(--white);
+    padding:8px 12px; border-radius:8px; font-size:13px; min-width:160px;
+  }
+  .sprint-manager-form input[type=date]{
+    background:var(--card2); border:1px solid var(--border); color:var(--white);
+    padding:8px 12px; border-radius:8px; font-size:13px; color-scheme:dark;
+  }
+  .sprint-list{ display:flex; flex-direction:column; gap:6px; }
+  .sprint-list-row{
+    display:flex; align-items:center; gap:14px; background:var(--card2);
+    border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:13px;
+  }
+  .sprint-list-row .sp-name{ font-weight:bold; color:var(--cyan); min-width:110px; }
+  .sprint-list-row .sp-dates{ color:var(--gray); flex:1; }
+  .sprint-list-empty{ color:var(--gray-dark); font-style:italic; font-size:13px; padding:6px 2px; }
+
+  .tipo-manager-form{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
+  .color-field{
+    display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gray);
+  }
+  .color-field input[type=color]{
+    width:34px; height:30px; border:1px solid var(--border); border-radius:6px;
+    padding:2px; background:var(--card2); cursor:pointer;
+  }
+  .form-msg{ font-size:12.5px; color:var(--debt-tx); min-height:16px; margin-bottom:8px; }
+  .tipo-swatch{
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:bold; border-radius:5px; padding:4px 9px;
+    min-width:70px; text-transform:uppercase;
   }
 
-  /* Barra de Autenticação */
-  .auth-bar {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  .stats-row{
+    display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap;
   }
-  .auth-inputs { display: flex; gap: 10px; align-items: center; }
-  .auth-inputs input {
-    border: 1px solid var(--border);
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
+  .stat-card{
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:16px 20px; flex:1; min-width:200px; cursor:pointer; transition:border-color .15s, box-shadow .15s;
+    border-top:3px solid var(--border); display:flex; gap:12px; align-items:flex-start;
   }
-  .auth-inputs input:focus { border-color: var(--primary); }
-  
-  .btn {
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    transition: background 0.2s;
+  .stat-card:hover{ border-color:var(--cyan); }
+  .stat-card.active{ box-shadow:0 0 0 3px rgba(11,61,145,0.12); }
+  .stat-card .stat-icon{
+    width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
   }
-  .btn:hover { background: var(--primary-dark); }
-  .btn-danger { background: #fde8e8; color: var(--danger); }
-  .btn-danger:hover { background: #fbd5d5; }
+  .stat-card .stat-icon svg{ width:18px; height:18px; }
+  .stat-card .stat-body{ flex:1; min-width:0; }
+  .stat-card .label{color:var(--white); font-size:13px; font-weight:bold; margin-bottom:6px;}
+  .stat-card .value-row{display:flex; align-items:baseline; gap:8px; margin-bottom:10px;}
+  .stat-card .value{font-size:22px; font-weight:bold;}
+  .stat-card .pct{color:var(--gray); font-size:12.5px;}
+  .bar-track{background:var(--card2); border-radius:6px; height:6px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:6px;}
 
-  /* Cabeçalho */
-  .header-bar {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    padding: 22px 28px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 12px rgba(11, 61, 145, 0.15);
-  }
-  .header-bar h1 { margin: 0; font-size: 22px; font-weight: 700; }
+  .icon-blue{ background:var(--icon-blue-bg); color:var(--icon-blue-tx); }
+  .icon-green{ background:var(--icon-green-bg); color:var(--icon-green-tx); }
+  .icon-amber{ background:var(--icon-amber-bg); color:var(--icon-amber-tx); }
+  .icon-purple{ background:var(--icon-purple-bg); color:var(--icon-purple-tx); }
+  .icon-blue-bar{ background:var(--icon-blue-tx); }
+  .icon-green-bar{ background:var(--icon-green-tx); }
+  .icon-amber-bar{ background:var(--icon-amber-tx); }
+  .icon-purple-bar{ background:var(--icon-purple-tx); }
 
-  /* Tabela Organizada */
-  .card-table {
-    background: var(--card);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    overflow: hidden;
+  .sprint-summary{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+  .metric-card{
+    flex:1; min-width:190px; background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:14px 16px; display:flex; gap:12px; align-items:flex-start;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
+  .metric-card.muted{ opacity:.85; }
+  .metric-icon{
+    width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
   }
-  
-  th {
-    background: #f8fafc;
-    color: #475569;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 14px 16px;
-    text-align: left;
-    border-bottom: 2px solid var(--border);
-  }
+  .metric-icon svg{ width:18px; height:18px; }
+  .metric-text{ min-width:0; flex:1; }
+  .metric-label{ font-size:11.5px; color:var(--gray); margin-bottom:4px; }
+  .metric-value{ font-size:20px; font-weight:bold; color:var(--white); }
+  .metric-sub{ font-size:11.5px; color:var(--gray-dark); margin-top:2px; }
+  .metric-bar-track{ background:var(--card2); border-radius:6px; height:5px; overflow:hidden; margin-top:6px; }
+  .metric-bar-fill{ height:100%; border-radius:6px; }
 
-  td {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-    vertical-align: middle;
+  .toolbar, .filters-row{
+    display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;
   }
-  tr:last-child td { border-bottom: none; }
-  tr:hover { background-color: #fafbfc; }
-
-  /* Ajuste das Larguras das Colunas */
-  th.col-id, td.col-id { width: 60px; text-align: center; font-weight: bold; color: var(--text-muted); }
-  th.col-titulo, td.col-titulo { width: 38%; }
-  th.col-projeto, td.col-projeto { width: 22%; }
-  th.col-status, td.col-status { width: 160px; }
-  th.col-alteracao, td.col-alteracao { width: 180px; }
-  th.col-acao, td.col-acao { width: 70px; text-align: center; }
-
-  /* Inputs dentro da tabela */
-  .cell-input {
-    width: 100%;
-    border: 1px solid transparent;
-    padding: 6px 8px;
-    border-radius: 6px;
-    font-size: 14px;
-    color: var(--text);
-    background: transparent;
+  .toolbar input[type=text], .filters-row input[type=text]{
+    background:var(--card2); border:1px solid var(--border); color:var(--white);
+    padding:9px 14px; border-radius:8px; font-size:13px; min-width:240px;
   }
-  .cell-input:hover:not(:disabled) { border-color: var(--border); background: #fff; }
-  .cell-input:focus:not(:disabled) { border-color: var(--primary); background: #fff; outline: none; }
-  .cell-input:disabled { opacity: 0.9; cursor: not-allowed; }
-
-  /* Select do Status */
-  .status-select {
-    width: 100%;
-    padding: 6px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    outline: none;
+  .toolbar select, .filters-row select{
+    background:var(--card2); border:1px solid var(--border); color:var(--white);
+    padding:9px 12px; border-radius:8px; font-size:13px;
   }
-
-  .status-a-fazer { background-color: #f1f5f9; color: #475569; }
-  .status-em-andamento { background-color: #fef3c7; color: #92400e; border-color: #fcd34d; }
-  .status-concluido { background-color: #dcfce7; color: #166534; border-color: #86efac; }
-
-  .user-badge { font-size: 11px; color: var(--text-muted); display: block; line-height: 1.3; }
-  .save-pill {
-    display: inline-block;
-    font-size: 12px;
-    color: #16a34a;
-    font-weight: 600;
-    margin-bottom: 10px;
-    opacity: 0;
-    transition: opacity 0.3s;
+  .btn{
+    border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:bold;
+    cursor:pointer; font-family:inherit;
   }
-  .save-pill.show { opacity: 1; }
-  .btn-icon { background: none; border: none; cursor: pointer; font-size: 16px; opacity: 0.7; }
-  .btn-icon:hover { opacity: 1; }
+  .btn-primary{background:var(--cyan); color:#ffffff;}
+  .btn-primary:hover{background:var(--detran-blue-dark);}
+  .btn-ghost{background:transparent; border:1px solid var(--border); color:var(--gray);}
+  .btn-ghost:hover{color:var(--white); border-color:var(--gray-dark);}
+  .spacer{flex:1;}
+
+  .table-wrap{ overflow-x:auto; border-radius:10px; }
+  table.hide-projeto .projeto-col{ display:none; }
+  table{
+    width:100%; min-width:1420px; border-collapse:collapse; background:var(--card);
+    border:1px solid var(--border); border-radius:10px; overflow:hidden;
+  }
+  thead th{
+    text-align:left; font-size:11px; letter-spacing:0.5px; color:#ffffff;
+    background:var(--detran-blue); padding:12px 10px; font-weight:bold;
+  }
+  thead th.col-draggable{
+    cursor:grab; user-select:none; transition:background .12s;
+  }
+  thead th.col-draggable:hover{ background:var(--detran-blue-dark); }
+  thead th.col-draggable .drag-handle{ opacity:.55; margin-right:5px; font-size:10px; }
+  thead th.col-dragging{ opacity:.4; }
+  thead th.col-drag-over{ box-shadow: inset 0 0 0 2px #ffffff; background:var(--detran-blue-dark); }
+  .column-hint{ font-size:11px; color:var(--gray-dark); font-style:italic; }
+  tbody td{
+    padding:8px 10px; border-top:1px solid var(--border); font-size:13px; vertical-align:middle;
+  }
+  tbody tr:hover{background:#f2f6fc;}
+  td.id-col input{font-weight:bold;}
+  td input, td textarea{
+    background:transparent; border:1px solid transparent; color:var(--white);
+    width:100%; font-family:inherit; font-size:13px; padding:5px 6px; border-radius:5px;
+  }
+  td input:focus, td textarea:focus{
+    border-color:var(--cyan); background:var(--card2); outline:none;
+  }
+  td textarea{
+    resize:none; overflow:hidden; white-space:pre-wrap; word-wrap:break-word;
+    display:block; line-height:1.4; min-height:28px;
+  }
+  td .item-input{
+    color:var(--gray); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+  }
+  td .titulo-input{font-weight:bold;}
+  select.tipo-select{
+    border:none; border-radius:6px; padding:7px 8px; font-size:11px; font-weight:bold;
+    text-align:center; width:100%; font-family:inherit; cursor:pointer; text-transform:uppercase;
+  }
+  select.tipo-select:focus{
+    outline:2px solid var(--cyan); outline-offset:1px;
+  }
+  textarea.pend-input{
+    border:none; border-radius:6px; padding:7px 8px; font-size:12px; font-weight:bold;
+    text-align:left; width:100%; font-family:inherit;
+  }
+  textarea.pend-input:focus{
+    outline:2px solid var(--cyan); outline-offset:1px;
+  }
+  select.sprint-select{
+    background:var(--card2); color:var(--white); text-align:left; font-weight:bold;
+    border:none; border-radius:6px; padding:7px 8px; font-size:12px; width:100%;
+    font-family:inherit; cursor:pointer;
+  }
+  select.sprint-select:focus{ color:var(--white); outline:2px solid var(--cyan); outline-offset:1px; }
+  .carry-btn{
+    display:block; margin-top:4px; width:100%; background:transparent; border:1px dashed var(--border);
+    color:var(--teal); font-size:10.5px; font-weight:bold; border-radius:6px; padding:3px 6px; cursor:pointer;
+  }
+  .carry-btn:hover{ background:var(--card2); border-color:var(--teal); }
+  .carry-origin-tag{
+    margin-top:4px; font-size:10px; font-weight:bold; color:#ffffff;
+    background:var(--teal); border-radius:6px; padding:3px 6px; text-align:center;
+  }
+  .undo-carry-btn{
+    display:block; margin-top:4px; width:100%; background:transparent; border:1px dashed var(--debt-tx);
+    color:var(--debt-tx); font-size:10.5px; font-weight:bold; border-radius:6px; padding:3px 6px; cursor:pointer;
+  }
+  .undo-carry-btn:hover{ background:var(--debt-bg); }
+  .undo-carry-btn.armed{ background:var(--debt-bg); border-style:solid; }
+  select.projeto-select{
+    background:transparent; color:var(--gray); font-size:12.5px;
+    border:none; border-radius:6px; padding:7px 8px; width:100%;
+    font-family:inherit; cursor:pointer;
+  }
+  select.projeto-select:focus{ color:var(--white); background:var(--card2); outline:2px solid var(--cyan); outline-offset:1px; }
+  input.ritm-id-input{
+    background:var(--card2); border:1px solid var(--border); color:var(--white);
+    font-weight:bold; font-size:12px; text-align:center; padding:6px 8px; border-radius:6px; width:100%;
+  }
+  input.ritm-id-input:focus{ outline:2px solid var(--cyan); outline-offset:1px; border-color:var(--cyan); }
+  .ritm-id-empty{ color:var(--gray-dark); font-size:12px; display:block; text-align:center; }
+  select.status-select{
+    border:none; border-radius:999px; padding:6px 12px; font-size:11.5px; font-weight:bold;
+    width:100%; font-family:inherit; cursor:pointer; text-align:center;
+  }
+  select.status-select:focus{
+    outline:2px solid var(--cyan); outline-offset:1px;
+  }
+  .n-col{color:var(--gray); width:36px;}
+  .del-col{width:36px; text-align:center;}
+  .del-btn{
+    background:transparent; border:none; color:var(--gray-dark); cursor:pointer; font-size:16px;
+    padding:4px 8px; border-radius:6px;
+  }
+  .del-btn:hover{color:var(--debt-tx); background:var(--debt-bg);}
+  .del-btn.armed{
+    color:var(--debt-tx); background:var(--debt-bg); font-size:11px; font-weight:bold;
+    padding:6px 10px; white-space:nowrap;
+  }
+  .empty-row{ text-align:center; color:var(--gray-dark); padding:30px; font-style:italic; }
+  .footer-note{color:var(--gray-dark); font-size:11.5px; margin-top:14px; text-align:center;}
+  .save-pill{
+    font-size:11px; color:var(--teal); opacity:0; transition:opacity 0.3s;
+  }
+  .save-pill.show{opacity:1;}
 </style>
 </head>
 <body>
 
-<div class="container">
-
-  <!-- Barra de Autenticação -->
-  <div class="auth-bar">
-    <div id="loggedOutView" class="auth-inputs">
-      <span style="font-size: 13px; color: var(--text-muted);">🔒 Modo de Leitura. Entre para editar:</span>
-      <input type="email" id="authEmail" placeholder="Seu E-mail">
-      <input type="password" id="authPassword" placeholder="Sua Senha">
-      <button class="btn" id="btnLogin">Entrar</button>
-    </div>
-    <div id="loggedInView" style="display:none; align-items: center; justify-content: space-between; width: 100%;">
-      <span style="font-size: 13px;">🟢 Conectado como: <strong id="userNameDisplay"></strong></span>
-      <button class="btn btn-danger" id="btnLogout">Sair</button>
-    </div>
-  </div>
-
-  <!-- Cabeçalho -->
   <div class="header-bar">
-    <h1>Painel de Backlog</h1>
-    <button class="btn" id="addBtn" style="background: #fff; color: var(--primary);">+ Novo Item</button>
+    <div class="header-top-row">
+      <div class="brand">
+        <div class="detran-logo-box">
+          <img class="detran-logo-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOoAAAA7CAYAAAB19hbEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAmLSURBVHhe7Z1PiBvXHce/TkziLpTGi0VjsB5r6MFse1ikm0ekDikJOXQRuGCNKElzKTnsil4knYpjepJ00+6h0DYtNJW0pKZia2roxW6iWUgabUUPxsSHODOJDVZsx/G/2DFsD5rf9OlpJI20moxG+/vAYPHe/NPzfN/v936/32j37ezs7IBhmKnmKbWBYZjpg4XKMCGAhcowIYCFyjAhgIXKMCFgXxBR3zd/31KbPHH44IHOv88dwOGDB/DT2PPqLgwzkwQi1H16XW0ai4XIHBYic3j9BYETi4ewEJlTd2GYmSDUQpUhwb71s2NqF8OEnpkRKsGCZWaRmQsmXW0/wJmzl/HWXy+rXQwTWmZOqMSZs5dxNPNPXG0/ULsYJnTMrFBhW9cXf9NQmxkmdMy0UMFiZWaEmRcqAFy89AWvWZlQsyeECnvNevHSF2ozw4SCPSNUAHjjt9tqE8OEgj0l1KvtB/jTv0y1mWGmnkCEejh6UG361jhzlteqTPgIRqhHDuJHMRGIYK+2H/BalQkdgZQQxsv/dT4/fvQEN9t3cfPGXTx+9KRrP784ffKYpxJD07LQMAy1GQAgolEkNE1tZiZIpVaDZXaWKpqmQQgBEY2quw39f+p3XJgIXKjE40dPcPerh7h14x7ufvVQ7Z4oC5E5fFJ+WW3uoVAsolAqqc1dCCGQ0DREjxxBPpdTu5kxqNRqWFldVZsBAGldRy6b7RKeaVlYisW69nMjn81C1/VQinZqhCrz+NETXLdu42b7rto1MXaqSbWpBy9ClXF7iCZFpVZDrVYD7MlhvVxWd5kJSKRCCOSyWSQ0DSIaRcMwUNvYQKVaRULTsL625owzCTWhaUilUuopYZkmqhsbME0TQghs1uu+/B/5yVQKlSC3+Lp1W+3aNZ+UXx76/qosVLKchGmaru4WiWjSbrF8LwlNw2bdvzeQgoIEJ4RAq9lUuwFpHPLZrOPB0HFpXR84gRWKRVQ3NgAgdGINJJjklWee3e9b4GnUYv2EpmG9XHa2zXodt9pttLa3kc9mnf1M08RKJtN1LDMa+qlTapNDPpdDWtdhbG2pXUPJ53LQT52CaZqoVqtq91Qz1UIlVME+8+x+dZfAENEo8rlcl4XzKlYKgrhZ5klC1zEtS+1y8LKPF3bzneiYqBBqVxc0UY4DWeFxhB4koRAq8c3D+7j3+RV8c2P3udBRLeowEprWZVn7PaymZaFQLGI+EsFSLIblZBLLySSW4nEsJ5M9x9C+8lq5YRiYj0QwH4lgOdlZa1dqtZ4207KwFI8711HPbVoWVjKZrntZisWwFI+jUCwCgNM/H4k4bQCwFI877SRw+VrLySTmIxGsZDKexU+u6JbPIhJC9IzFtBMKod7/8g6ufPAhPr5wDveuXVG7x+LE4iG1adfoug5hWwPTNHse0IZhYCkWcw1Q0Zp3JZPpEsS40LrNtNMbKpVaDUuxGCouLqBpmiiUSp68AgAw7O/ldq1Kteo6SbiRsFMwlWoVFTtw5gcUVAoTUy1UPwTqJyIa7QpQUA4QtnDI0sGe1fPZLNbX1rC+tuYEn0gkJFbNttRycIqOzWezrlFOAF3pDSEE0lJaomEYPekP8gjSuu5cq1KtehKYHHCjc8hCME0TRZfJyY3Neh1CCKysro5kjb1C5wtTIAnTKtT7X97BpYsXfBXosIjvuGjHjzuf5XWQLIy0rqPVbHYCI6kU0qkUNut1rK+tOftQdDKhacjncl3npXUxHe9GwzCQ0DS0trfRaja7ItGypRRCoLW9jc16Hflczln/0b24WUk3Nut15zvRObwsBVRENIrNeh0JTXM8EK8W2QsURJLHMwxMlVBvfGqhdf4cPr5wDo9uX1O7J4Yfbi8hB0Jo9q7Uas6DRtFjN9KpFNK6DtgCGdf9I5G6pSAqtVqX+Nz2gX0v8sQxCNkKEyIa7VoKQBqPYZBY18tlpHXd8UaWk8mxxwT2dy+USh3LH7LilKkQ6pUPPkTr72fx+fZ72Pn6jto9cV5/wb/1iezuugmgn6tKpKTUBBU4jENOsmYycqAmP6Q4I51K9QjQjeN9rNOgpYAXaFJrNZtYX1vrBL+GuMRkuWmr1GooFItYTiYdr6bfRDnNBCZUWn/+529/wb1rV7Dz5Gt1F9/w06Jan33mfCZrIoujWCp1oqN9Nnkduxv6CUx2IYelQbwySOyyiymPzaikUym0mk2kdR2VatU1D0qBK3lbWV1FoVRCwzCQ1nXcarf7js00E4hQgwwQ0a/r+4UsBLI0sqtpmubAbRIMimjKohokMGLQuYJgvVyGEMIRn0zCLi1Ut9b2Nm6126G0pEQgQg1CoMQf3xxevD0u6vqPZm7ZqqR1vedB6rf1c1+H4UWAsNMqYYTGRXV/hRBOcE7evI7HNBOIUIPixOIh39xeWj8RCbuYHHaKRUZ9kPptfrho/aLSbpiW5Zpn9Qs56DYIGtdR17xhZk8J9fTJ4e+gjkOhWOx5zUoucZPdRy9pCtVSTBJ50mgYxsDiCjXX6jfFUslTvjWsnsBu2DNC/cWPO3/xbVzooZY3KpNTK43UOlQRjWJdykv2qz6S0xCqWOXAD4ndHPDCdD8SSqkjVSDReUzL6lQtxeMjn3sU/vD223jl1Vfxj/PnnTbKnbqNDWFaljPeYUux7IY9IdQTi4d2vTZ1KoakTX2Qhf2uo5vLmlZypIVSqVNja0d6qd62YRgwXV6hU9dZy3Zdbs0ujBgFNb9J0VK6h5XVVWet7Ucw6b3330c2n8e/P/oIP3/tNVy7fh1QAkVuk5X8Qrk82ewFZl6oC5E5XPh1Qm2eKFQ612o2XUVK5OyyPxlVlCT2tJJvVS3hbqCCgkHnGzTp7Jb9+7vfftr/9NPOZ7UqiSaz+UgEK6uraBhGp3xyD1lTBPXi+FMv5tWm0fhOBDvf+4Ha2oPXn1zpR8MwBq6HNE0b60Eml3VrawumXSAePXLE0/nonignSb8oYVqWk1uM2tFPL/S7FxKCPAby/VWk3zMa9PMm8vHyff35nXew8e67+FUmg5+89JJy1P+Po4AX3Ve/axWKRU/jF1ZmVqgnFg/5bkkZ5tti5lzfhcgcTp88xiJlZoqZsaj8l8aZWSb0QmWBMnuBQIT6w1/+Tm3yzPcPfheLR5/HG68sIX70ObWbYWaSQITKMMxozFwwiWFmERYqw4QAFirDhAAWKsOEABYqw4QAFirDhAAWKsOEABYqw4QAFirDhAAWKsOEABYqw4QAFirDhID/AbUUDX+OKY1UAAAAAElFTkSuQmCC" alt="Logo Detran.SP">
+        </div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-titles">
+        <div class="eyebrow">GESTÃO DE SPRINTS</div>
+        <h1>Painel de <span>Backlog</span></h1>
+      </div>
+      <div class="spacer"></div>
+      <div class="settings-dropdown">
+        <button class="btn-settings-header" id="settingsBtn" type="button" title="Configurações">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Configurações
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <button class="settings-menu-item" id="toggleSprintManagerBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Gerenciar Sprints
+          </button>
+          <button class="settings-menu-item" id="toggleTipoManagerBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6 12 21 3 12V3h9l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+            Gerenciar Tipos
+          </button>
+          <button class="settings-menu-item" id="resetColumnsBtn" type="button" title="Arraste os cabeçalhos da tabela para reordenar as colunas">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Ordem das Colunas
+          </button>
+          <button class="settings-menu-item" id="resetBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2-9.4L1 10"/></svg>
+            Restaurar Original
+          </button>
+          <div class="settings-menu-divider"></div>
+          <button class="settings-menu-item" id="importSprintBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 21h16"/></svg>
+            Importar Sprint (Excel)
+          </button>
+          <button class="settings-menu-item" id="exportBackupBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 21h16"/></svg>
+            Exportar Backup (Excel)
+          </button>
+          <input type="file" id="importSprintFileInput" accept=".xlsx,.xls,.csv" style="display:none">
+        </div>
+      </div>
+      <button class="btn-header-primary" id="addBtn">
+        <span class="btn-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </span>
+        Novo item
+      </button>
+    </div>
+
+    <div class="subtitle-inline">Planeje e acompanhe Sustentações, Melhorias e Demandas da Sprint. Todas as alterações são refletidas automaticamente nos indicadores do painel.</div>
+
+    <div class="header-sprint-row">
+      <div class="sprint-nav">
+        <label>Sprint atual</label>
+        <div class="sprint-nav-control">
+          <select id="sprintSelect">
+            <option value="">Todos os itens</option>
+          </select>
+          <button type="button" id="prevSprintBtn" title="Sprint anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button type="button" id="nextSprintBtn" title="Próxima sprint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="date-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span id="sprintDateBadge">—</span>
+      </div>
+    </div>
   </div>
 
-  <div class="save-pill" id="savePill">✓ Alterações salvas no Firebase</div>
+  <!-- Linha 1: indicadores de entrega da sprint selecionada -->
+  <div class="sprint-summary" id="sprintSummary"></div>
 
-  <!-- Tabela -->
-  <div class="card-table">
-    <table>
-      <thead>
-        <tr>
-          <th class="col-id">ID</th>
-          <th class="col-titulo">Título da Demanda</th>
-          <th class="col-projeto">Projeto</th>
-          <th class="col-status">Status</th>
-          <th class="col-alteracao">Última Alteração</th>
-          <th class="col-acao">Ação</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <!-- Linha 2: indicadores por categoria (clicáveis) -->
+  <div class="stats-row" id="statsRow"></div>
+
+  <!-- Linha 3: filtros -->
+  <div class="filters-row">
+    <div class="search-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar por ID, item, título, projeto ou sprint.">
+    </div>
+    <div class="select-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 4 21 4 14 12.5 14 19 10 21 10 12.5 3 4"/></svg>
+      <select id="filterTipo">
+        <option value="">Todos os tipos</option>
+      </select>
+    </div>
+    <div class="spacer"></div>
+    <span class="save-pill" id="savePill">Salvo ✓</span>
   </div>
 
-</div>
+  <div class="modal-overlay" id="sprintModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Gerenciar Sprints</h2>
+        <button class="modal-close" id="closeSprintManagerBtn" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="sprint-manager-form">
+        <input type="text" id="newSprintName" placeholder="Nome (ex: SP#18)">
+        <input type="date" id="newSprintStart">
+        <input type="date" id="newSprintEnd">
+        <button class="btn btn-primary" id="addSprintBtn" type="button">+ Adicionar / Atualizar Sprint</button>
+      </div>
+      <div class="sprint-list" id="sprintList"></div>
+    </div>
+  </div>
 
-<!-- Firebase SDK -->
+  <div class="modal-overlay" id="tipoModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Gerenciar Tipos</h2>
+        <button class="modal-close" id="closeTipoManagerBtn" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="tipo-manager-form">
+        <input type="text" id="newTipoName" placeholder="Nome do tipo (ex: FEATURE)">
+        <label class="color-field">Fundo <input type="color" id="newTipoBg" value="#f1f5f9"></label>
+        <label class="color-field">Texto <input type="color" id="newTipoTx" value="#475569"></label>
+        <button class="btn btn-primary" id="addTipoBtn" type="button">+ Adicionar Tipo</button>
+        <button class="btn btn-ghost" id="cancelTipoEditBtn" type="button" style="display:none;">Cancelar edição</button>
+      </div>
+      <div class="form-msg" id="tipoManagerMsg"></div>
+      <div class="sprint-list" id="tipoList"></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <thead id="tableHead"></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  </div>
+  <div class="footer-note">Gestão de Sprints © 2026 | Painel de Controle do Backlog | Sincronizado via Firebase</div>
+
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+// ---- Firebase (Cloud Firestore) ----
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCLBXtg-3VvM4YTbD4OcXU_OthhFsnn8ps",
-    authDomain: "painel-de-backlog.firebaseapp.com",
-    projectId: "painel-de-backlog",
-    storageBucket: "painel-de-backlog.firebasestorage.app",
-    messagingSenderId: "863389774469",
-    appId: "1:863389774469:web:0410fdb381d493253e2fec"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCLBXtg-3VvM4YTbD4OcXU_OthhFsnn8ps",
+  authDomain: "painel-de-backlog.firebaseapp.com",
+  projectId: "painel-de-backlog",
+  storageBucket: "painel-de-backlog.firebasestorage.app",
+  messagingSenderId: "863389774469",
+  appId: "1:863389774469:web:0410fdb381d493253e2fec"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const docRef = doc(db, "backlog_data", "main_state");
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+// Todo o estado do painel (itens, sprints, tipos, ordem de colunas, sprint
+// selecionada) é guardado em um único documento, um campo por chave — assim
+// qualquer pessoa que abrir este arquivo (ex: pelo link do OneDrive) vê os
+// mesmos dados e as mesmas alterações, em vez de cada navegador ter sua
+// própria cópia isolada em localStorage.
+const backlogDocRef = doc(db, "backlog_data", "main_state");
 
-  let currentUser = null;
-  let state = { items: [] };
+// Persistence layer: mesma interface get/set de antes (chave -> string JSON),
+// agora apontando para o Firestore em vez do localStorage. Como o resto do
+// código só conversa com o LocalStore, nada mais precisou ser alterado.
+const firestoreCache = {};        // último valor conhecido de cada chave
+let firestoreReady = false;
+let pendingRemoteRefresh = false; // chegou uma alteração remota enquanto o usuário editava um campo
 
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    const loggedOutView = document.getElementById("loggedOutView");
-    const loggedInView = document.getElementById("loggedInView");
-    
-    if (user) {
-      loggedOutView.style.display = "none";
-      loggedInView.style.display = "flex";
-      document.getElementById("userNameDisplay").textContent = user.email;
-    } else {
-      loggedOutView.style.display = "flex";
-      loggedInView.style.display = "none";
+const LocalStore = {
+  async get(key){
+    if(Object.prototype.hasOwnProperty.call(firestoreCache, key) && firestoreCache[key] != null){
+      return { key, value: firestoreCache[key] };
     }
-    render();
+    return null;
+  },
+  async set(key, value){
+    firestoreCache[key] = value; // grava otimista: evita re-renderizar por causa do próprio eco do Firestore
+    try{
+      await setDoc(backlogDocRef, { [key]: value }, { merge: true });
+    }catch(e){
+      console.error("Erro ao salvar no Firebase:", e);
+    }
+    return { key, value };
+  },
+};
+
+// Busca o estado inicial no Firestore (antes de qualquer loadXxx() rodar) e
+// passa a escutar em tempo real por alterações feitas por outras pessoas com
+// este mesmo arquivo aberto.
+async function initFirestore(){
+  try{
+    const snap = await getDoc(backlogDocRef);
+    if(snap.exists()) Object.assign(firestoreCache, snap.data());
+  }catch(e){
+    console.error("Erro ao carregar dados do Firebase:", e);
+  }
+  firestoreReady = true;
+
+  onSnapshot(backlogDocRef, (snapshot)=>{
+    if(!firestoreReady) return;
+    const remote = snapshot.data() || {};
+    let changed = false;
+    Object.keys(remote).forEach(key=>{
+      if(firestoreCache[key] !== remote[key]){
+        firestoreCache[key] = remote[key];
+        changed = true;
+      }
+    });
+    if(changed) requestRemoteRefresh();
   });
+}
 
-  document.getElementById("btnLogin").onclick = async () => {
-    const email = document.getElementById("authEmail").value.trim();
-    const pass = document.getElementById("authPassword").value.trim();
+// Se o usuário estiver digitando em um campo, a tela não é redesenhada embaixo
+// dos dedos: a atualização remota é aplicada só quando o campo perder o foco.
+function requestRemoteRefresh(){
+  const active = document.activeElement;
+  const isEditing = active && ["INPUT","TEXTAREA","SELECT"].includes(active.tagName);
+  if(isEditing){ pendingRemoteRefresh = true; return; }
+  refreshFromRemote();
+}
 
-    if (!email || !pass) {
-      return alert("Por favor, preencha o e-mail e a senha.");
+async function refreshFromRemote(){
+  pendingRemoteRefresh = false;
+  await loadData();
+  await loadSprints();
+  await loadSelectedSprint();
+  await loadTipos();
+  await loadColumnOrder();
+  renderTableHeader();
+  renderSprintSelect();
+  renderSprintList();
+  renderTipoFilterOptions();
+  renderTipoList();
+  renderAll();
+}
+
+document.addEventListener("focusout", ()=>{
+  if(!pendingRemoteRefresh) return;
+  setTimeout(()=>{
+    const active = document.activeElement;
+    const stillEditing = active && ["INPUT","TEXTAREA","SELECT"].includes(active.tagName);
+    if(!stillEditing) refreshFromRemote();
+  }, 150);
+});
+
+const DEFAULT_TIPOS = [
+  {name:"ENABLER",   bg:"#f1f5f9", tx:"#475569"},
+  {name:"SPLIT US",  bg:"#f1f5f9", tx:"#475569"},
+  {name:"HISTÓRIA",  bg:"#e0f2fe", tx:"#0369a1"},
+  {name:"RITM",      bg:"#fef9c3", tx:"#713f12"},
+  {name:"DEBT",      bg:"#fee2e2", tx:"#991b1b"},
+];
+let tipos = [];
+const TIPOS_KEY = "backlog-tipos-v1";
+
+async function loadTipos(){
+  try{
+    const res = await LocalStore.get(TIPOS_KEY);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      tipos = Array.isArray(parsed) && parsed.length ? parsed : JSON.parse(JSON.stringify(DEFAULT_TIPOS));
+      return;
     }
+  }catch(e){ /* not set yet */ }
+  tipos = JSON.parse(JSON.stringify(DEFAULT_TIPOS));
+  await saveTipos();
+}
+async function saveTipos(){
+  try{ await LocalStore.set(TIPOS_KEY, JSON.stringify(tipos)); }
+  catch(e){ console.error("Erro ao salvar tipos:", e); }
+}
 
-    try { 
-      await signInWithEmailAndPassword(auth, email, pass); 
-    } catch (e) { 
-      if (e.code === 'auth/invalid-email') {
-        alert("O e-mail digitado não é válido. Verifique se digitou corretamente.");
-      } else if (e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
-        alert("E-mail ou senha incorretos.");
+function tipoBelongsTo(tipoValue, registryName){
+  if(tipoValue === registryName) return true;
+  if(registryName === "RITM" && tipoValue && /^RITM\d+/i.test(tipoValue)) return true;
+  return false;
+}
+
+function styleForTipo(tipoName){
+  const exact = tipos.find(x=>x.name === tipoName);
+  if(exact) return {bg:exact.bg, tx:exact.tx};
+  if(tipoName && /^RITM\d+/i.test(tipoName)){
+    const ritm = tipos.find(x=>x.name === "RITM");
+    if(ritm) return {bg:ritm.bg, tx:ritm.tx};
+  }
+  return {bg:"#f1f5f9", tx:"#475569"}; // fallback: "Outros/Novos tipos"
+}
+
+const STATUS_OPTIONS = [
+  "A fazer",
+  "Pronto para Desenvolvimento",
+  "Em desenvolvimento",
+  "Pronto para Testes",
+  "Em teste",
+  "Pronto para Homologação",
+  "Em homologação",
+  "Em implantação",
+  "Validação em Produção",
+  "Concluído",
+  "Não concluído",
+  "Bloqueado",
+  "Cancelado",
+];
+const STATUS_STYLES = {
+  "A fazer":                      {bg:"#f1f5f9", tx:"#475569"},
+  "Pronto para Desenvolvimento":   {bg:"#e0f2fe", tx:"#0369a1"},
+  "Em desenvolvimento":            {bg:"#dbeafe", tx:"#1d4ed8"},
+  "Pronto para Testes":            {bg:"#ffedd5", tx:"#c2410c"},
+  "Em teste":                      {bg:"#fef3c7", tx:"#b45309"},
+  "Pronto para Homologação":       {bg:"#f3e8ff", tx:"#6b21a8"},
+  "Em homologação":                {bg:"#fae8ff", tx:"#86198f"},
+  "Em implantação":                {bg:"#e3faf2", tx:"#0b724b"},
+  "Validação em Produção":      {bg:"#ccfbf1", tx:"#0f766e"},
+  "Concluído":                     {bg:"#dcfce7", tx:"#15803d"},
+  "Não concluído":                 {bg:"#fff7ed", tx:"#9a3412"},
+  "Bloqueado":                     {bg:"#fee2e2", tx:"#b91c1c"},
+  "Cancelado":                     {bg:"#e2e8f0", tx:"#64748b"},
+};
+function styleForStatus(status){
+  return STATUS_STYLES[status] || {bg:"var(--card2)", tx:"var(--gray-dark)"};
+}
+
+const DEFAULT_DATA = [
+{id:"STRY0026619",tipo:"ENABLER",item:"Adaptar Configurador para indicar fluxo relacionado",titulo:"Configurar fluxo de automatização por serviço",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027114",tipo:"ENABLER",item:"Designar solicitações para o robô",titulo:"Encaminhamento automático para grupo de robô",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027587",tipo:"ENABLER",item:"Implantação da Integração com o SEI",titulo:"Go-live da Integração com o SEI",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0028365",tipo:"ENABLER",item:"Suporte para o time Índigo",titulo:"Suporte à integração CSM com aplicativo",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0026620",tipo:"ENABLER",item:"Provisionar identidade para o App Detran",titulo:"Provisionamento de Identidade no App Detran",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027769",tipo:"ENABLER",item:"Ativar retorno para o cidadão",titulo:"Habilitar Retorno do Cidadão na Manifestação",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027764",tipo:"ENABLER",item:"Enviar e-mail de retorno para solicitação",titulo:"Enviar E-mail de Solicitação de Informações",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027822",tipo:"ENABLER",item:"Permitir configuração de data de validade",titulo:"Configuração de validade flexível para documentos",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0022284",tipo:"ENABLER",item:"Informar data de validade para Documento",titulo:"Informar data de validade para Documento",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0022331",tipo:"ENABLER",item:"Validação dinâmica de documentos pelo Portal",titulo:"Validação dinâmica de documentos no Portal",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0026615",tipo:"ENABLER",item:"Automatizar Emissão de Certidão de Dados",titulo:"Automação da emissão de certidão de propriedade",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027905",tipo:"SPLIT US",item:"Painel de Acompanhamento - Integração",titulo:"Associação de Fluxo ao Painel de Acompanhamento",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0028019",tipo:"SPLIT US",item:"Criar Documentação Técnica do SEI",titulo:"Documentação Técnica do Fluxo de Automação",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0026621",tipo:"HISTÓRIA",item:"Identificar solicitações criadas pelo App",titulo:"Identificação automática do canal de origem",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027251",tipo:"HISTÓRIA",item:"Solicitar mais informações na manifestação",titulo:"Ativar fluxo de Aguardando Informações",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027940",tipo:"RITM0652",item:'[CSM] Campo "situação" incluir status',titulo:'Inclusão do Status "Respondido" na Situação',sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0026825",tipo:"DEBT",item:'[DEBT] Exibir corretamente a situação',titulo:'Padronização da exibição da situação "Respondido"',sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027942",tipo:"RITM0637",item:"[CSM] Reprocessamento Base SLA Protocolos",titulo:"Reprocessamento de SLA de Protocolos",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027939",tipo:"SPLIT US",item:"Performance - Ajuste de Query no Widget",titulo:"Otimização do Widget de Tabela de SRV",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027980",tipo:"RITM0712",item:"[CSM] Ajuste Exibição das Abas do caso SAC",titulo:"Ajuste de Exibição das Abas do Caso SAC",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0027766",tipo:"RITM0733",item:"[CSM] Ajuste na Regra de contestação",titulo:"Regra de Contestação de Manifestações",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0028478",tipo:"RITM0749",item:"[CSM] Loop de autenticação após Termo",titulo:"Correção de Loop de Autenticação no Portal",sprint:"",projeto:"",status:"",pend:""},
+{id:"STRY0028476",tipo:"RITM0748",item:"[CSM] Reinclusão de E-mail no formulário",titulo:"Ajuste de Reinclusão de Campo E-mail",sprint:"",projeto:"",status:"",pend:""},
+];
+
+let data = [];
+const STORAGE_KEY = "backlog-items-v1";
+
+const STATUS_LABEL_MIGRATION = {
+  "Pronto para testes": "Pronto para Testes",
+  "Pronto para homologação": "Pronto para Homologação",
+  "Em Validação em Produção": "Validação em Produção",
+};
+
+// One-time repair: earlier versions of this panel collapsed each item's specific
+// RITM ticket number down to the generic "RITM" type. This restores the original
+// number for these known IDs, but only if the tipo is still the untouched generic
+// "RITM" — if you've since edited that item's Tipo yourself, your choice is kept.
+const RITM_ID_FIX = {
+  "STRY0027940": "RITM0652",
+  "STRY0027942": "RITM0637",
+  "STRY0027980": "RITM0712",
+  "STRY0027766": "RITM0733",
+  "STRY0028478": "RITM0749",
+  "STRY0028476": "RITM0748",
+};
+
+function migrate(list){
+  return list.map(row=>{
+    const r = {...row};
+    if(r.sprint === undefined) r.sprint = "";
+    if(!Array.isArray(r.sprintHistory)){
+      // Adopt the legacy `history` field if present (array of {sprint,status} or strings),
+      // converting it to a simple ordered list of sprint names.
+      if(Array.isArray(r.history)){
+        r.sprintHistory = r.history.map(h => typeof h === "string" ? h : h.sprint).filter(Boolean);
       } else {
-        alert("Erro ao entrar: " + e.message); 
+        r.sprintHistory = [];
       }
     }
+    delete r.history;
+    if(r.projeto === undefined) r.projeto = "";
+    if(r.ritmId === undefined) r.ritmId = "";
+    if(r.status === undefined) r.status = "";
+    if(STATUS_LABEL_MIGRATION[r.status]) r.status = STATUS_LABEL_MIGRATION[r.status];
+    if(r.pend && r.pend.trim().toLowerCase() === "nenhuma") r.pend = "";
+    if(r.tipo) r.tipo = r.tipo.toUpperCase();
+    if(r.tipo === "RITM" && RITM_ID_FIX[r.id]) r.tipo = RITM_ID_FIX[r.id];
+    return r;
+  });
+}
+
+// One-time repair: earlier versions of this panel created a DUPLICATE row (same ID)
+// when carrying an item to the next sprint, instead of moving the original. This
+// merges any leftover duplicates (from that older behavior) back into a single row
+// per ID, combining their sprint trail into sprintHistory. Requires `sprints` to
+// already be loaded (for chronological ordering), so it runs after loadSprints().
+function dedupeCarriedItems(list){
+  const groups = {};
+  list.forEach(item=>{
+    const key = item.id || `__norow_${Math.random()}`;
+    if(!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+
+  const order = getSortedSprints().map(s=>s.name);
+  const rank = (name) => {
+    const i = order.indexOf(name);
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
   };
 
-  document.getElementById("btnLogout").onclick = () => signOut(auth);
+  let changed = false;
+  const result = [];
+  Object.values(groups).forEach(group=>{
+    if(group.length === 1){ result.push(group[0]); return; }
+    changed = true;
+    const ordered = [...group].sort((a,b)=> rank(a.sprint) - rank(b.sprint));
+    const latest = ordered[ordered.length - 1];
+    const trail = [];
+    ordered.forEach(g=>{
+      (g.sprintHistory||[]).forEach(h=>{ if(h && !trail.includes(h)) trail.push(h); });
+      if(g !== latest && g.sprint && !trail.includes(g.sprint)) trail.push(g.sprint);
+    });
+    const merged = {...latest, sprintHistory: trail};
+    delete merged.carryOverFrom;
+    result.push(merged);
+  });
+  return {list: result, changed};
+}
 
-  onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      state = snapshot.data();
-      render();
+async function loadData(){
+  try{
+    const res = await LocalStore.get(STORAGE_KEY);
+    if(res && res.value){
+      const raw = JSON.parse(res.value);
+      data = migrate(raw);
+      // Se a migração mudou algo (ex: renomeou um status antigo), grava de volta
+      // imediatamente para o armazenamento não continuar guardando o valor obsoleto.
+      if(JSON.stringify(raw) !== JSON.stringify(data)){
+        await saveData(false);
+      }
+      return;
+    }
+  }catch(e){ /* key not found */ }
+  data = migrate(JSON.parse(JSON.stringify(DEFAULT_DATA)));
+  await saveData(false);
+}
+
+let saveTimeout = null;
+async function saveData(showPill=true){
+  try{
+    await LocalStore.set(STORAGE_KEY, JSON.stringify(data));
+    if(showPill){
+      const pill = document.getElementById("savePill");
+      pill.classList.add("show");
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(()=>pill.classList.remove("show"), 1200);
+    }
+  }catch(e){ console.error("Erro ao salvar:", e); }
+}
+
+let sprints = []; // [{name, start, end}]
+let selectedSprint = "";
+
+const SPRINTS_KEY = "backlog-sprints-v1";
+const SELECTED_SPRINT_KEY = "backlog-selected-sprint-v1";
+
+async function loadSprints(){
+  try{
+    const res = await LocalStore.get(SPRINTS_KEY);
+    if(res && res.value){ sprints = JSON.parse(res.value); return; }
+  }catch(e){ /* not set yet */ }
+  sprints = [];
+}
+async function saveSprints(){
+  try{
+    await LocalStore.set(SPRINTS_KEY, JSON.stringify(sprints));
+  }catch(e){ console.error("Erro ao salvar sprints:", e); }
+}
+async function loadSelectedSprint(){
+  try{
+    const res = await LocalStore.get(SELECTED_SPRINT_KEY);
+    if(res && res.value){ selectedSprint = JSON.parse(res.value); return; }
+  }catch(e){ /* not set yet */ }
+  selectedSprint = "";
+}
+async function saveSelectedSprint(){
+  try{ await LocalStore.set(SELECTED_SPRINT_KEY, JSON.stringify(selectedSprint)); }
+  catch(e){ console.error("Erro ao salvar sprint selecionada:", e); }
+}
+
+function formatDateBR(iso){
+  if(!iso) return "";
+  const [y,m,d] = iso.split("-");
+  if(!y||!m||!d) return iso;
+  return `${d}/${m}/${y}`;
+}
+
+function applySprintMove(idx, newSprint){
+  const item = data[idx];
+  const oldSprint = item.sprint;
+  if(!Array.isArray(item.sprintHistory)) item.sprintHistory = [];
+
+  if(oldSprint && oldSprint !== newSprint){
+    const revertIndex = item.sprintHistory.indexOf(newSprint);
+    if(revertIndex > -1){
+      // Returning to a sprint it had already passed through: this is a correction,
+      // not a new forward move, so wipe the trail from that point on.
+      item.sprintHistory = item.sprintHistory.slice(0, revertIndex);
+    } else if(!item.sprintHistory.includes(oldSprint)){
+      item.sprintHistory.push(oldSprint);
+    }
+  }
+  item.sprint = newSprint;
+}
+
+function getSortedSprints(){
+  return [...sprints].sort((a,b)=>{
+    if(a.start && b.start) return a.start.localeCompare(b.start);
+    if(a.start && !b.start) return -1;
+    if(!a.start && b.start) return 1;
+    return 0;
+  });
+}
+function getNextSprintName(currentSprintName){
+  const sorted = getSortedSprints();
+  const idx = sorted.findIndex(s=>s.name === currentSprintName);
+  if(idx === -1 || idx === sorted.length - 1) return null;
+  return sorted[idx + 1].name;
+}
+function getPreviousSprintName(currentSprintName){
+  const sorted = getSortedSprints();
+  const idx = sorted.findIndex(s=>s.name === currentSprintName);
+  if(idx <= 0) return null;
+  return sorted[idx - 1].name;
+}
+
+function sprintOptionsHtml(current){
+  let names = sprints.map(s=>s.name);
+  if(current && !names.includes(current)) names = [current, ...names];
+  const opts = [`<option value="" ${!current?"selected":""}>—</option>`]
+    .concat(names.map(n=>`<option value="${escapeAttr(n)}" ${n===current?"selected":""}>${escapeHtml(n)}</option>`));
+  return opts.join("");
+}
+
+function renderSprintSelect(){
+  const sel = document.getElementById("sprintSelect");
+  sel.innerHTML = `<option value="">Todos os itens</option>` +
+    sprints.map(s=>`<option value="${escapeAttr(s.name)}" ${s.name===selectedSprint?"selected":""}>${escapeHtml(s.name)}</option>`).join("");
+  sel.value = selectedSprint;
+  updateSprintSummary();
+}
+
+const ICON_SVG = {
+  layers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9 12 2"/></svg>',
+  wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L2 19l3 3 7.3-7.3a4 4 0 0 0 5.4-5.4l-2.8 2.8-2-2z"/></svg>',
+  clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="16" y2="15"/></svg>',
+  warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+};
+
+function updateSprintSummary(){
+  const box = document.getElementById("sprintSummary");
+  const badge = document.getElementById("sprintDateBadge");
+  const s = sprints.find(sp => sp.name === selectedSprint);
+  const count = getSprintFilteredData().length;
+
+  if(!s){
+    if(badge) badge.textContent = "Selecione uma sprint";
+    box.innerHTML = `
+      <div class="metric-card muted">
+        <div class="metric-icon icon-blue">${ICON_SVG.layers}</div>
+        <div class="metric-text">
+          <div class="metric-label">Itens no backlog</div>
+          <div class="metric-value">${count}</div>
+          <div class="metric-sub">Nenhuma sprint selecionada</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const periodo = (s.start || s.end)
+    ? `${formatDateBR(s.start) || "—"} – ${formatDateBR(s.end) || "—"}`
+    : "—";
+  if(badge) badge.textContent = periodo;
+
+  const currentInS = getSprintFilteredData(); // items currently tagged with this sprint
+  const concluidos = currentInS.filter(d=>d.status === "Concluído").length;
+  const naoConcluidos = currentInS.length - concluidos;
+  const carryOverItems = data.filter(d => Array.isArray(d.sprintHistory) && d.sprintHistory.includes(selectedSprint) && d.sprint !== selectedSprint);
+  // "Itens vinculados" = tudo que já foi comprometido nesta sprint em algum momento:
+  // o que ainda está aqui + o que já saiu (carregado para a próxima).
+  const vinculados = currentInS.length + carryOverItems.length;
+  const pct = v => vinculados > 0 ? Math.round((v/vinculados)*100) : 0;
+  const taxaEntrega = pct(concluidos);
+
+  box.innerHTML = `
+    <div class="metric-card">
+      <div class="metric-icon icon-blue">${ICON_SVG.layers}</div>
+      <div class="metric-text">
+        <div class="metric-label">Itens vinculados</div>
+        <div class="metric-value">${vinculados}</div>
+        <div class="metric-sub">Total do backlog</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon icon-green">${ICON_SVG.check}</div>
+      <div class="metric-text">
+        <div class="metric-label">Concluídos na sprint</div>
+        <div class="metric-value">${concluidos}</div>
+        <div class="metric-sub">${pct(concluidos)}% do total</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon icon-amber">${ICON_SVG.clock}</div>
+      <div class="metric-text">
+        <div class="metric-label">Não concluídos na sprint</div>
+        <div class="metric-value">${naoConcluidos}</div>
+        <div class="metric-sub">${pct(naoConcluidos)}% do total</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon icon-purple">${ICON_SVG.arrowRight}</div>
+      <div class="metric-text">
+        <div class="metric-label">Carregados para próxima sprint</div>
+        <div class="metric-value">${carryOverItems.length}</div>
+        <div class="metric-sub">${pct(carryOverItems.length)}% do total</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon icon-blue">${ICON_SVG.flag}</div>
+      <div class="metric-text">
+        <div class="metric-label">Entrega da sprint</div>
+        <div class="metric-value">${taxaEntrega}%</div>
+        <div class="metric-bar-track"><div class="metric-bar-fill icon-blue-bar" style="width:${taxaEntrega}%;"></div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSprintList(){
+  const list = document.getElementById("sprintList");
+  if(sprints.length === 0){
+    list.innerHTML = `<div class="sprint-list-empty">Nenhuma sprint cadastrada ainda. Adicione uma acima.</div>`;
+    return;
+  }
+  list.innerHTML = sprints.map((s, i)=>`
+    <div class="sprint-list-row">
+      <div class="sp-name">${escapeHtml(s.name)}</div>
+      <div class="sp-dates">${formatDateBR(s.start) || "—"} → ${formatDateBR(s.end) || "—"}</div>
+      <button type="button" class="del-btn sprint-del-btn" data-sprint-idx="${i}" title="Excluir sprint">✕</button>
+    </div>
+  `).join("");
+}
+
+const PROJETO_OPTIONS = ["Melhoria", "Sustentação", "Demanda"];
+
+function projetoOptionsHtml(current){
+  let names = PROJETO_OPTIONS.slice();
+  if(current && !names.includes(current)) names = [current, ...names];
+  const opts = [`<option value="" ${!current?"selected":""}>—</option>`]
+    .concat(names.map(n=>`<option value="${escapeAttr(n)}" ${n===current?"selected":""}>${escapeHtml(n)}</option>`));
+  return opts.join("");
+}
+
+function tipoOptionsHtml(current){
+  let names = tipos.map(t=>t.name);
+  if(current && !names.includes(current)) names = [current, ...names];
+  const opts = [`<option value="" ${!current?"selected":""}>—</option>`]
+    .concat(names.map(n=>`<option value="${escapeAttr(n)}" ${n===current?"selected":""}>${escapeHtml(n)}</option>`));
+  return opts.join("");
+}
+
+function renderTipoFilterOptions(){
+  const sel = document.getElementById("filterTipo");
+  const current = sel.value;
+  sel.innerHTML = `<option value="">Todos os tipos</option>` +
+    tipos.map(t=>`<option value="${escapeAttr(t.name)}" ${t.name===current?"selected":""}>${escapeHtml(t.name)}</option>`).join("");
+  if(tipos.some(t=>t.name===current)) sel.value = current;
+}
+
+function renderTipoList(){
+  const list = document.getElementById("tipoList");
+  if(tipos.length === 0){
+    list.innerHTML = `<div class="sprint-list-empty">Nenhum tipo cadastrado ainda.</div>`;
+    return;
+  }
+  list.innerHTML = tipos.map((t, i)=>{
+    const usageCount = data.filter(d=>tipoBelongsTo(d.tipo, t.name)).length;
+    return `
+    <div class="sprint-list-row">
+      <span class="tipo-swatch" style="background:${t.bg}; color:${t.tx};">${escapeHtml(t.name)}</span>
+      <div class="sp-dates">${usageCount} item(ns) usando este tipo</div>
+      <button type="button" class="btn btn-ghost tipo-edit-btn" data-tipo-idx="${i}" style="padding:5px 10px; font-size:12px;">Editar</button>
+      <button type="button" class="del-btn tipo-del-btn" data-tipo-idx="${i}" title="Excluir tipo">✕</button>
+    </div>
+  `;
+  }).join("");
+}
+
+function getSprintFilteredData(){
+  if(!selectedSprint) return data;
+  return data.filter(d => (d.sprint||"") === selectedSprint);
+}
+
+function norm(v){ return (v||"").trim().toLowerCase(); }
+
+function computeStats(){
+  const scoped = getSprintFilteredData();
+  const total = scoped.length || 1;
+  const melhorias = scoped.filter(d=>norm(d.projeto)==="melhoria").length;
+  const sustentacoes = scoped.filter(d=>norm(d.projeto)==="sustentação").length;
+  const demandas = scoped.filter(d=>norm(d.projeto)==="demanda").length;
+  const pendencias = scoped.filter(d=>d.pend && d.pend.trim() !== "").length;
+  return [
+    {key:"melhorias", label:"Melhorias", value:melhorias, iconClass:"icon-blue", icon:ICON_SVG.star},
+    {key:"sustentacoes", label:"Sustentações", value:sustentacoes, iconClass:"icon-green", icon:ICON_SVG.wrench},
+    {key:"demandas", label:"Demandas", value:demandas, iconClass:"icon-purple", icon:ICON_SVG.clipboard},
+    {key:"pendencias", label:"Pendências", value:pendencias, iconClass:"icon-amber", icon:ICON_SVG.warning},
+  ].map(s=>({...s, total, pct: Math.round((s.value/total)*100)}));
+}
+
+let statFilter = null; // null | "melhorias" | "sustentacoes" | "demandas" | "pendencias"
+
+function renderStats(){
+  const row = document.getElementById("statsRow");
+  const stats = computeStats();
+  row.innerHTML = stats.map(s=>`
+    <div class="stat-card${statFilter===s.key ? " active" : ""}" data-stat="${s.key}" role="button" tabindex="0"
+      style="border-top-color:var(--${s.iconClass}-tx);" title="Clique para listar apenas ${s.label.toLowerCase()}">
+      <div class="stat-icon ${s.iconClass}">${s.icon}</div>
+      <div class="stat-body">
+        <div class="label">${s.label}</div>
+        <div class="value-row">
+          <div class="value">${s.value} <span style="font-size:14px; font-weight:normal; color:var(--gray);">de ${s.total}</span></div>
+        </div>
+        <div class="bar-track"><div class="bar-fill ${s.iconClass}-bar" style="width:${s.pct}%;"></div></div>
+        <div class="pct" style="margin-top:6px;">${s.pct}%</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function escapeHtml(s){
+  return (s||"").toString().replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+
+function autoResizeTextarea(el){
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+
+function currentFilters(){
+  return {
+    q: document.getElementById("searchInput").value.trim().toLowerCase(),
+    tipo: document.getElementById("filterTipo").value,
+  };
+}
+
+function matchesFilter(row, filters){
+  if(selectedSprint && (row.sprint||"") !== selectedSprint){
+    return false;
+  }
+  if(filters.tipo && !tipoBelongsTo(row.tipo, filters.tipo)){
+    return false;
+  }
+  if(statFilter === "melhorias" && norm(row.projeto) !== "melhoria") return false;
+  if(statFilter === "sustentacoes" && norm(row.projeto) !== "sustentação") return false;
+  if(statFilter === "demandas" && norm(row.projeto) !== "demanda") return false;
+  if(statFilter === "pendencias" && !(row.pend && row.pend.trim() !== "")) return false;
+  if(filters.q){
+    const hay = (row.id+" "+row.item+" "+row.titulo+" "+(row.projeto||"")+" "+(row.sprint||"")).toLowerCase();
+    if(!hay.includes(filters.q)) return false;
+  }
+  return true;
+}
+
+const COLUMN_DEFS = {
+  id: {
+    label: "ID", thStyle: "width:120px;",
+    cell: (row, idx) => `<td class="id-col"><input value="${escapeAttr(row.id)}" data-field="id" data-idx="${idx}"></td>`
+  },
+  titulo: {
+    label: "Título", thClass: "titulo-col",
+    cell: (row, idx) => `<td class="titulo-col"><textarea class="titulo-input" rows="1" data-field="titulo" data-idx="${idx}">${escapeHtml(row.titulo)}</textarea></td>`
+  },
+  status: {
+    label: "Status", thStyle: "width:170px;",
+    cell: (row, idx) => {
+      const sst = styleForStatus(row.status);
+      return `<td>
+        <select class="status-select" data-field="status" data-idx="${idx}" style="background:${sst.bg}; color:${sst.tx};">
+          <option value="" ${!row.status ? "selected":""}>— Selecionar —</option>
+          ${STATUS_OPTIONS.map(o=>`<option value="${escapeAttr(o)}" ${row.status===o?"selected":""}>${escapeHtml(o)}</option>`).join("")}
+        </select>
+      </td>`;
+    }
+  },
+  sprint: {
+    label: "Sprint", thStyle: "width:140px;",
+    cell: (row, idx) => `<td>
+        <select class="sprint-select" data-field="sprint" data-idx="${idx}">
+          ${sprintOptionsHtml(row.sprint)}
+        </select>
+        ${(row.sprintHistory && row.sprintHistory.length) ? `
+          <div class="carry-origin-tag" title="Trilha completa: ${escapeAttr([...row.sprintHistory, row.sprint].filter(Boolean).join(" → "))}">${escapeHtml([...row.sprintHistory, row.sprint].filter(Boolean).join(" → "))}</div>
+          <button type="button" class="undo-carry-btn" data-idx="${idx}" title="Desfazer: volta este item para ${escapeAttr(row.sprintHistory[row.sprintHistory.length-1])}">✕</button>
+        ` : ""}
+        ${row.sprint ? `<button type="button" class="carry-btn" data-idx="${idx}" title="Carregar para a próxima sprint">↷ Carregar</button>` : ""}
+      </td>`
+  },
+  tipo: {
+    label: "Tipo", thStyle: "width:110px;",
+    cell: (row, idx) => {
+      const st = styleForTipo(row.tipo);
+      return `<td>
+        <select class="tipo-select" data-field="tipo" data-idx="${idx}" style="background:${st.bg}; color:${st.tx};">
+          ${tipoOptionsHtml(row.tipo)}
+        </select>
+      </td>`;
+    }
+  },
+  projeto: {
+    label: "Projeto", thClass: "projeto-col", thStyle: "width:130px;",
+    cell: (row, idx) => `<td class="projeto-col">
+        <select class="projeto-select" data-field="projeto" data-idx="${idx}">
+          ${projetoOptionsHtml(row.projeto)}
+        </select>
+      </td>`
+  },
+  ritm: {
+    label: "RITM", thStyle: "width:110px;",
+    cell: (row, idx) => `<td>
+        ${norm(row.projeto)==="sustentação"
+          ? `<input class="ritm-id-input" value="${escapeAttr(row.ritmId||"")}" placeholder="RITM0000" data-field="ritmId" data-idx="${idx}">`
+          : `<span class="ritm-id-empty">—</span>`}
+      </td>`
+  },
+  item: {
+    label: "Backlog Técnico", thStyle: "width:220px;",
+    cell: (row, idx) => `<td><input class="item-input" value="${escapeAttr(row.item)}" title="${escapeAttr(row.item)}" data-field="item" data-idx="${idx}"></td>`
+  },
+  pend: {
+    label: "Pendência", thStyle: "width:130px;",
+    cell: (row, idx) => {
+      const pendEmpty = !row.pend || row.pend.trim() === "";
+      return `<td>
+        <textarea class="pend-input" rows="1" placeholder="Nenhuma" data-field="pend" data-idx="${idx}"
+          style="background:${pendEmpty ? 'var(--ok-bg)' : 'var(--debt-bg)'}; color:${pendEmpty ? 'var(--ok-tx)' : 'var(--debt-tx)'};">${escapeHtml(row.pend||"")}</textarea>
+      </td>`;
+    }
+  },
+};
+const DEFAULT_COLUMN_ORDER = ["id","titulo","status","sprint","tipo","projeto","ritm","item","pend"];
+let columnOrder = DEFAULT_COLUMN_ORDER.slice();
+const COLUMN_ORDER_KEY = "backlog-column-order-v1";
+
+async function loadColumnOrder(){
+  try{
+    const res = await LocalStore.get(COLUMN_ORDER_KEY);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      if(Array.isArray(parsed)){
+        // Mantém apenas chaves conhecidas, e acrescenta ao final qualquer coluna nova
+        // que não estava salva ainda (ex: se o painel ganhar uma coluna no futuro).
+        const known = parsed.filter(k=>COLUMN_DEFS[k]);
+        const missing = DEFAULT_COLUMN_ORDER.filter(k=>!known.includes(k));
+        columnOrder = [...known, ...missing];
+        return;
+      }
+    }
+  }catch(e){ /* not set yet */ }
+  columnOrder = DEFAULT_COLUMN_ORDER.slice();
+}
+async function saveColumnOrder(){
+  try{ await LocalStore.set(COLUMN_ORDER_KEY, JSON.stringify(columnOrder)); }
+  catch(e){ console.error("Erro ao salvar ordem das colunas:", e); }
+}
+
+function renderTableHeader(){
+  const thead = document.getElementById("tableHead");
+  const cols = columnOrder.map(key=>{
+    const def = COLUMN_DEFS[key];
+    const styleAttr = def.thStyle ? ` style="${def.thStyle}"` : "";
+    const classAttr = `col-draggable${def.thClass ? " " + def.thClass : ""}`;
+    return `<th class="${classAttr}" data-col="${key}"${styleAttr} draggable="true"><span class="drag-handle">⠿</span>${escapeHtml(def.label)}</th>`;
+  }).join("");
+  thead.innerHTML = `<tr><th class="n-col">Nº</th>${cols}<th class="del-col"></th></tr>`;
+  attachColumnDragEvents();
+}
+
+let dragSrcKey = null;
+function attachColumnDragEvents(){
+  const ths = document.querySelectorAll("#tableHead th.col-draggable");
+  ths.forEach(th=>{
+    th.addEventListener("dragstart", ()=>{
+      dragSrcKey = th.dataset.col;
+      th.classList.add("col-dragging");
+    });
+    th.addEventListener("dragend", ()=>{
+      th.classList.remove("col-dragging");
+      document.querySelectorAll("#tableHead th.col-drag-over").forEach(x=>x.classList.remove("col-drag-over"));
+    });
+    th.addEventListener("dragover", (e)=>{
+      e.preventDefault();
+      if(th.dataset.col !== dragSrcKey) th.classList.add("col-drag-over");
+    });
+    th.addEventListener("dragleave", ()=>{ th.classList.remove("col-drag-over"); });
+    th.addEventListener("drop", (e)=>{
+      e.preventDefault();
+      th.classList.remove("col-drag-over");
+      const targetKey = th.dataset.col;
+      if(!dragSrcKey || dragSrcKey === targetKey) return;
+      const from = columnOrder.indexOf(dragSrcKey);
+      const to = columnOrder.indexOf(targetKey);
+      if(from === -1 || to === -1) return;
+      columnOrder.splice(from, 1);
+      columnOrder.splice(to, 0, dragSrcKey);
+      saveColumnOrder();
+      renderTableHeader();
+      renderTable();
+    });
+  });
+}
+
+function renderTable(){
+  const tbody = document.getElementById("tableBody");
+  const filters = currentFilters();
+  tbody.innerHTML = "";
+  let shown = 0;
+
+  // Quando o filtro ativo já restringe a exatamente um projeto (via clique nos
+  // indicadores Melhorias/Sustentações/Demandas), a coluna Projeto vira redundante.
+  const singleProjectFilters = ["melhorias", "sustentacoes", "demandas"];
+  document.querySelector("table").classList.toggle("hide-projeto", singleProjectFilters.includes(statFilter));
+
+  data.forEach((row, idx)=>{
+    if(!matchesFilter(row, filters)) return;
+    shown++;
+    const tr = document.createElement("tr");
+    const cellsHtml = columnOrder.map(key=>COLUMN_DEFS[key].cell(row, idx)).join("");
+    tr.innerHTML = `
+      <td class="n-col">${idx+1}</td>
+      ${cellsHtml}
+      <td class="del-col"><button type="button" class="del-btn" data-idx="${idx}" title="Excluir item">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelectorAll("textarea").forEach(autoResizeTextarea);
+  });
+
+  if(shown === 0){
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-row">Nenhum item encontrado. Ajuste os filtros ou adicione um novo item.</td></tr>`;
+  }
+}
+
+function renderAll(){
+  renderStats();
+  renderTable();
+  updateSprintSummary();
+}
+
+function attachEvents(){
+  const settingsBtn = document.getElementById("settingsBtn");
+  const settingsMenu = document.getElementById("settingsMenu");
+  settingsBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    settingsMenu.classList.toggle("open");
+  });
+  settingsMenu.addEventListener("click", (e)=>{
+    if(e.target.closest("button")){
+      settingsMenu.classList.remove("open");
+    }
+  });
+  document.addEventListener("click", (e)=>{
+    if(!e.target.closest(".settings-dropdown")){
+      settingsMenu.classList.remove("open");
     }
   });
 
-  async function saveState() {
-    if (!currentUser) return alert("Precisa de fazer login para salvar!");
-    const savePill = document.getElementById("savePill");
-    try {
-      await setDoc(docRef, state);
-      savePill.classList.add("show");
-      setTimeout(() => savePill.classList.remove("show"), 2000);
-    } catch (err) {
-      alert("Erro ao salvar: " + err.message);
+  document.getElementById("resetColumnsBtn").addEventListener("click", ()=>{
+    columnOrder = DEFAULT_COLUMN_ORDER.slice();
+    saveColumnOrder();
+    renderTableHeader();
+    renderTable();
+  });
+  document.getElementById("statsRow").addEventListener("click", (e)=>{
+    const card = e.target.closest(".stat-card");
+    if(!card) return;
+    const key = card.dataset.stat;
+    statFilter = (statFilter === key) ? null : key;
+    renderStats();
+    renderTable();
+  });
+  document.getElementById("tableBody").addEventListener("input", (e)=>{
+    const t = e.target;
+    if(!(t.dataset && t.dataset.field !== undefined)) return;
+    const idx = parseInt(t.dataset.idx, 10);
+    const field = t.dataset.field;
+    data[idx][field] = t.value;
+    debounceSave();
+
+    if(t.tagName === "TEXTAREA"){
+      autoResizeTextarea(t);
     }
+
+    if(field === "pend"){
+      const empty = !t.value || t.value.trim() === "";
+      t.style.background = empty ? "var(--ok-bg)" : "var(--debt-bg)";
+      t.style.color = empty ? "var(--ok-tx)" : "var(--debt-tx)";
+      renderStats();
+    }
+    // id / item / titulo / sprint: value already saved above, no re-render needed
+    // so the input never loses focus while typing
+  });
+  document.getElementById("tableBody").addEventListener("change", (e)=>{
+    const t = e.target;
+    if(t.classList && t.classList.contains("status-select")){
+      const idx = parseInt(t.dataset.idx, 10);
+      data[idx].status = t.value;
+      const sst = styleForStatus(t.value);
+      t.style.background = sst.bg;
+      t.style.color = sst.tx;
+      saveData();
+      updateSprintSummary(); // concluidos/nao-concluidos depend on status
+    } else if(t.classList && t.classList.contains("sprint-select")){
+      const idx = parseInt(t.dataset.idx, 10);
+      applySprintMove(idx, t.value);
+      saveData();
+      renderTable(); // row's sprint changed; it may leave/enter the current filtered view
+      updateSprintSummary();
+    } else if(t.classList && t.classList.contains("tipo-select")){
+      const idx = parseInt(t.dataset.idx, 10);
+      data[idx].tipo = t.value;
+      saveData();
+      renderAll(); // tipo badge color and stats need to refresh
+    } else if(t.classList && t.classList.contains("projeto-select")){
+      const idx = parseInt(t.dataset.idx, 10);
+      data[idx].projeto = t.value;
+      saveData();
+      renderStats(); // Melhorias/Sustentações/Demandas indicators depend on Projeto
+      renderTable(); // Identificador RITM field visibility depends on Projeto too
+    }
+  });
+  document.getElementById("tableBody").addEventListener("click", (e)=>{
+    const carryBtn = e.target.closest(".carry-btn");
+    if(carryBtn){
+      if(carryBtn.dataset.busy === "1") return; // guards against rapid double-clicks
+      const idx = parseInt(carryBtn.dataset.idx, 10);
+      const original = data[idx];
+      const nextSprint = getNextSprintName(original.sprint);
+      if(!nextSprint){
+        carryBtn.textContent = "Sem próxima sprint";
+        setTimeout(()=>{ carryBtn.textContent = "↷ Carregar"; }, 2000);
+        return;
+      }
+      carryBtn.dataset.busy = "1";
+      // Move the SAME item forward (single ID, no duplicate row): record the trail.
+      applySprintMove(idx, nextSprint);
+      data[idx].status = "A fazer";
+      saveData();
+      renderAll();
+      return;
+    }
+    const undoBtn = e.target.closest(".undo-carry-btn");
+    if(undoBtn){
+      const idx = parseInt(undoBtn.dataset.idx, 10);
+      const row = data[idx];
+      if(!row.sprintHistory || !row.sprintHistory.length) return;
+      const previousSprint = row.sprintHistory[row.sprintHistory.length - 1];
+      if(undoBtn.dataset.armed === "1"){
+        applySprintMove(idx, previousSprint);
+        saveData();
+        renderAll();
+      } else {
+        document.querySelectorAll(".undo-carry-btn[data-armed='1']").forEach(b=>{
+          b.dataset.armed = "0"; b.textContent = "✕"; b.classList.remove("armed");
+        });
+        undoBtn.dataset.armed = "1";
+        undoBtn.textContent = "Confirmar";
+        undoBtn.classList.add("armed");
+        setTimeout(()=>{
+          if(undoBtn.dataset.armed === "1"){
+            undoBtn.dataset.armed = "0"; undoBtn.textContent = "✕"; undoBtn.classList.remove("armed");
+          }
+        }, 3000);
+      }
+      return;
+    }
+    const btn = e.target.closest(".del-btn");
+    if(!btn) return;
+    e.preventDefault();
+    const idx = parseInt(btn.dataset.idx, 10);
+    if(btn.dataset.armed === "1"){
+      data.splice(idx, 1);
+      saveData();
+      renderAll();
+    } else {
+      // arm: require a second click to confirm, avoids accidental deletes
+      document.querySelectorAll(".del-btn[data-armed='1']").forEach(b=>{
+        b.dataset.armed = "0"; b.textContent = "✕"; b.classList.remove("armed");
+      });
+      btn.dataset.armed = "1";
+      btn.textContent = "Confirmar";
+      btn.classList.add("armed");
+      setTimeout(()=>{
+        if(btn.dataset.armed === "1"){
+          btn.dataset.armed = "0"; btn.textContent = "✕"; btn.classList.remove("armed");
+        }
+      }, 3000);
+    }
+  });
+  document.getElementById("addBtn").addEventListener("click", ()=>{
+    data.push({id:"STRY0000000", tipo:"ENABLER", item:"Novo item do backlog", titulo:"Título sugerido", sprint: selectedSprint || "", sprintHistory:[], projeto:"", ritmId:"", status:"", pend:""});
+    saveData();
+    renderAll();
+    const rows = document.querySelectorAll("#tableBody input[data-field='id']");
+    if(rows.length){ rows[rows.length-1].focus(); rows[rows.length-1].select(); }
+  });
+  const resetBtn = document.getElementById("resetBtn");
+  resetBtn.addEventListener("click", ()=>{
+    if(resetBtn.dataset.armed === "1"){
+      data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      saveData();
+      renderAll();
+      resetBtn.dataset.armed = "0";
+      resetBtn.textContent = "Restaurar original";
+    } else {
+      resetBtn.dataset.armed = "1";
+      resetBtn.textContent = "Confirmar restauração?";
+      setTimeout(()=>{
+        if(resetBtn.dataset.armed === "1"){
+          resetBtn.dataset.armed = "0";
+          resetBtn.textContent = "Restaurar original";
+        }
+      }, 3000);
+    }
+  });
+  document.getElementById("searchInput").addEventListener("input", renderTable);
+  document.getElementById("filterTipo").addEventListener("change", renderTable);
+
+  document.getElementById("sprintSelect").addEventListener("change", (e)=>{
+    selectedSprint = e.target.value;
+    saveSelectedSprint();
+    updateSprintSummary();
+    renderAll();
+  });
+  document.getElementById("prevSprintBtn").addEventListener("click", ()=>{
+    const prev = getPreviousSprintName(selectedSprint);
+    if(!prev) return;
+    selectedSprint = prev;
+    document.getElementById("sprintSelect").value = prev;
+    saveSelectedSprint();
+    updateSprintSummary();
+    renderAll();
+  });
+  document.getElementById("nextSprintBtn").addEventListener("click", ()=>{
+    const next = getNextSprintName(selectedSprint);
+    if(!next) return;
+    selectedSprint = next;
+    document.getElementById("sprintSelect").value = next;
+    saveSelectedSprint();
+    updateSprintSummary();
+    renderAll();
+  });
+
+  const modalOverlay = document.getElementById("sprintModalOverlay");
+  document.getElementById("toggleSprintManagerBtn").addEventListener("click", ()=>{
+    modalOverlay.classList.add("open");
+  });
+  document.getElementById("closeSprintManagerBtn").addEventListener("click", ()=>{
+    modalOverlay.classList.remove("open");
+  });
+  modalOverlay.addEventListener("click", (e)=>{
+    if(e.target === modalOverlay){ modalOverlay.classList.remove("open"); }
+  });
+
+  document.getElementById("addSprintBtn").addEventListener("click", ()=>{
+    const nameInput = document.getElementById("newSprintName");
+    const startInput = document.getElementById("newSprintStart");
+    const endInput = document.getElementById("newSprintEnd");
+    const name = nameInput.value.trim();
+    if(!name){ nameInput.focus(); return; }
+    const existing = sprints.find(s=>s.name === name);
+    if(existing){
+      existing.start = startInput.value;
+      existing.end = endInput.value;
+    } else {
+      sprints.push({name, start: startInput.value, end: endInput.value});
+    }
+    saveSprints();
+    renderSprintSelect();
+    renderSprintList();
+    renderTable(); // row sprint dropdowns need the new option available
+    nameInput.value = ""; startInput.value = ""; endInput.value = "";
+    nameInput.focus();
+  });
+
+  document.getElementById("sprintList").addEventListener("click", (e)=>{
+    const btn = e.target.closest(".sprint-del-btn");
+    if(!btn) return;
+    const idx = parseInt(btn.dataset.sprintIdx, 10);
+    if(btn.dataset.armed === "1"){
+      const removedName = sprints[idx].name;
+      sprints.splice(idx, 1);
+      saveSprints();
+      if(selectedSprint === removedName){
+        selectedSprint = "";
+        saveSelectedSprint();
+      }
+      renderSprintSelect();
+      renderSprintList();
+      renderAll();
+    } else {
+      document.querySelectorAll(".sprint-del-btn[data-armed='1']").forEach(b=>{
+        b.dataset.armed = "0"; b.textContent = "✕"; b.classList.remove("armed");
+      });
+      btn.dataset.armed = "1";
+      btn.textContent = "Confirmar";
+      btn.classList.add("armed");
+      setTimeout(()=>{
+        if(btn.dataset.armed === "1"){
+          btn.dataset.armed = "0"; btn.textContent = "✕"; btn.classList.remove("armed");
+        }
+      }, 3000);
+    }
+  });
+
+  // ---- Gerenciar Tipos (CRUD) ----
+  const tipoModalOverlay = document.getElementById("tipoModalOverlay");
+  const tipoMsg = document.getElementById("tipoManagerMsg");
+  let editingTipoName = null;
+
+  function resetTipoForm(){
+    document.getElementById("newTipoName").value = "";
+    document.getElementById("newTipoBg").value = "#f1f5f9";
+    document.getElementById("newTipoTx").value = "#475569";
+    document.getElementById("addTipoBtn").textContent = "+ Adicionar Tipo";
+    document.getElementById("cancelTipoEditBtn").style.display = "none";
+    tipoMsg.textContent = "";
+    editingTipoName = null;
   }
 
-  function getStatusClass(status) {
-    if (status === 'Em Andamento') return 'status-em-andamento';
-    if (status === 'Concluído') return 'status-concluido';
-    return 'status-a-fazer';
+  document.getElementById("toggleTipoManagerBtn").addEventListener("click", ()=>{
+    resetTipoForm();
+    renderTipoList();
+    tipoModalOverlay.classList.add("open");
+  });
+  document.getElementById("closeTipoManagerBtn").addEventListener("click", ()=>{
+    tipoModalOverlay.classList.remove("open");
+  });
+  tipoModalOverlay.addEventListener("click", (e)=>{
+    if(e.target === tipoModalOverlay){ tipoModalOverlay.classList.remove("open"); }
+  });
+  document.getElementById("cancelTipoEditBtn").addEventListener("click", resetTipoForm);
+
+  document.getElementById("addTipoBtn").addEventListener("click", ()=>{
+    const nameInput = document.getElementById("newTipoName");
+    const bgInput = document.getElementById("newTipoBg");
+    const txInput = document.getElementById("newTipoTx");
+    const name = nameInput.value.trim().toUpperCase();
+    if(!name){ nameInput.focus(); return; }
+
+    const duplicate = tipos.find(t=>t.name === name && t.name !== editingTipoName);
+    if(duplicate){
+      tipoMsg.textContent = `Já existe um tipo chamado "${name}".`;
+      return;
+    }
+
+    if(editingTipoName){
+      const idx = tipos.findIndex(t=>t.name === editingTipoName);
+      if(idx > -1){
+        tipos[idx] = {name, bg:bgInput.value, tx:txInput.value};
+        if(name !== editingTipoName){
+          data.forEach(d=>{ if(tipoBelongsTo(d.tipo, editingTipoName)) d.tipo = name; });
+          saveData();
+        }
+      }
+    } else {
+      tipos.push({name, bg:bgInput.value, tx:txInput.value});
+    }
+    saveTipos();
+    renderTipoList();
+    renderTipoFilterOptions();
+    renderTable();
+    resetTipoForm();
+  });
+
+  document.getElementById("tipoList").addEventListener("click", (e)=>{
+    const editBtn = e.target.closest(".tipo-edit-btn");
+    if(editBtn){
+      const idx = parseInt(editBtn.dataset.tipoIdx, 10);
+      const t = tipos[idx];
+      editingTipoName = t.name;
+      document.getElementById("newTipoName").value = t.name;
+      document.getElementById("newTipoBg").value = t.bg;
+      document.getElementById("newTipoTx").value = t.tx;
+      document.getElementById("addTipoBtn").textContent = "Salvar edição";
+      document.getElementById("cancelTipoEditBtn").style.display = "inline-block";
+      tipoMsg.textContent = "";
+      return;
+    }
+    const delBtn = e.target.closest(".tipo-del-btn");
+    if(delBtn){
+      const idx = parseInt(delBtn.dataset.tipoIdx, 10);
+      const t = tipos[idx];
+      const usageCount = data.filter(d=>tipoBelongsTo(d.tipo, t.name)).length;
+      if(usageCount > 0){
+        tipoMsg.textContent = `Não é possível excluir "${t.name}": ${usageCount} item(ns) ainda usam este tipo.`;
+        return;
+      }
+      if(delBtn.dataset.armed === "1"){
+        tipos.splice(idx, 1);
+        saveTipos();
+        renderTipoList();
+        renderTipoFilterOptions();
+        if(editingTipoName === t.name) resetTipoForm();
+      } else {
+        document.querySelectorAll(".tipo-del-btn[data-armed='1']").forEach(b=>{
+          b.dataset.armed = "0"; b.textContent = "✕"; b.classList.remove("armed");
+        });
+        delBtn.dataset.armed = "1";
+        delBtn.textContent = "Confirmar";
+        delBtn.classList.add("armed");
+        tipoMsg.textContent = "";
+        setTimeout(()=>{
+          if(delBtn.dataset.armed === "1"){
+            delBtn.dataset.armed = "0"; delBtn.textContent = "✕"; delBtn.classList.remove("armed");
+          }
+        }, 3000);
+      }
+    }
+  });
+
+  // ---- Backup: exportar / importar ----
+  document.getElementById("exportBackupBtn").addEventListener("click", ()=>{
+    const backlogRows = data.map(d=>({
+      "ID": d.id,
+      "Tipo": d.tipo,
+      "Item do Backlog Técnico": d.item,
+      "Título": d.titulo,
+      "Sprint": d.sprint,
+      "Projeto": d.projeto,
+      "Identificador RITM": d.ritmId || "",
+      "Status": d.status,
+      "Pendência": d.pend,
+      "Histórico de Sprints": Array.isArray(d.sprintHistory) ? d.sprintHistory.join(" → ") : "",
+    }));
+    const sprintRows = sprints.map(s=>({ "Nome": s.name, "Início": s.start || "", "Fim": s.end || "" }));
+    const tipoRows = tipos.map(t=>({ "Nome": t.name, "Cor de Fundo": t.bg, "Cor do Texto": t.tx }));
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(backlogRows), "Backlog");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sprintRows), "Sprints");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tipoRows), "Tipos");
+
+    const stamp = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `painel-backlog-backup-${stamp}.xlsx`);
+  });
+
+  // ---- Importar Sprint (Excel / SPM) ----
+  document.getElementById("importSprintBtn").addEventListener("click", ()=>{
+    document.getElementById("importSprintFileInput").click();
+  });
+  document.getElementById("importSprintFileInput").addEventListener("change", (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const reader2 = new FileReader();
+    reader2.onload = (evt)=>{
+      try{
+        const wb = XLSX.read(evt.target.result, { type: "array" });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        importSpreadsheetRows(rows);
+      }catch(err){
+        console.error("Erro ao importar planilha:", err);
+        alert("Não foi possível ler o arquivo. Verifique se é uma planilha Excel/CSV válida.");
+      }
+      e.target.value = "";
+    };
+    reader2.readAsArrayBuffer(file);
+  });
+}
+
+function normalizeHeader(h){
+  return (h||"").toString().trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function buildImportKeyMap(sampleRow){
+  const keyMap = {};
+  Object.keys(sampleRow).forEach(k=>{
+    const nk = normalizeHeader(k);
+    if(["id","story id","story_id","stry"].includes(nk)) keyMap.id = k;
+    else if(nk === "projeto") keyMap.projeto = k;
+    else if(nk === "sprint") keyMap.sprint = k;
+    else if(nk === "status") keyMap.status = k;
+    else if(nk === "tipo") keyMap.tipo = k;
+    else if(["pendencia","pendencias"].includes(nk)) keyMap.pend = k;
+    else if(["identificador ritm","identificador","ritm","ritm id"].includes(nk)) keyMap.ritmId = k;
+    else if(["item","item do backlog tecnico"].includes(nk)) keyMap.item = k;
+    else if(["titulo","titulo sugerido","titulo sugerido funcional","titulo sugerido / funcional"].includes(nk)) keyMap.titulo = k;
+  });
+  return keyMap;
+}
+
+function importSpreadsheetRows(rows){
+  if(!rows || !rows.length){
+    alert("A planilha está vazia ou não foi possível ler nenhuma linha.");
+    return;
+  }
+  const keyMap = buildImportKeyMap(rows[0]);
+  if(!keyMap.id){
+    alert('Não encontrei uma coluna "ID" na planilha. Verifique o cabeçalho das colunas.');
+    return;
   }
 
-  function render() {
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
-    const isEditable = !!currentUser;
+  let added = 0, updated = 0;
+  rows.forEach(r=>{
+    const idVal = (keyMap.id ? r[keyMap.id] : "").toString().trim();
+    if(!idVal) return;
 
-    (state.items || []).forEach((item, index) => {
-      const tr = document.createElement("tr");
-      const statusClass = getStatusClass(item.status);
+    const tipoVal = keyMap.tipo ? r[keyMap.tipo].toString().trim() : "";
+    const sprintVal = keyMap.sprint ? r[keyMap.sprint].toString().trim() : "";
+    const statusVal = keyMap.status ? r[keyMap.status].toString().trim() : "";
+    const projetoVal = keyMap.projeto ? r[keyMap.projeto].toString().trim() : "";
+    const pendVal = keyMap.pend ? r[keyMap.pend].toString().trim() : "";
+    const ritmVal = keyMap.ritmId ? r[keyMap.ritmId].toString().trim() : "";
+    const itemVal = keyMap.item ? r[keyMap.item].toString() : "";
+    const tituloVal = keyMap.titulo ? r[keyMap.titulo].toString() : "";
 
-      tr.innerHTML = `
-        <td class="col-id">${item.id}</td>
-        <td class="col-titulo">
-          <input type="text" class="cell-input" ${!isEditable ? 'disabled' : ''} value="${item.titulo || ''}" onchange="updateItem(${index}, 'titulo', this.value)">
-        </td>
-        <td class="col-projeto">
-          <input type="text" class="cell-input" ${!isEditable ? 'disabled' : ''} value="${item.projeto || ''}" onchange="updateItem(${index}, 'projeto', this.value)">
-        </td>
-        <td class="col-status">
-          <select class="status-select ${statusClass}" ${!isEditable ? 'disabled' : ''} onchange="updateItem(${index}, 'status', this.value)">
-            <option value="A Fazer" ${item.status === 'A Fazer' ? 'selected' : ''}>A Fazer</option>
-            <option value="Em Andamento" ${item.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
-            <option value="Concluído" ${item.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
-          </select>
-        </td>
-        <td class="col-alteracao">
-          <span class="user-badge">${item.editadoPor ? item.editadoPor : 'Sem registo'}</span>
-          <span class="user-badge" style="color:#aaa;">${item.dataEdicao ? item.dataEdicao : ''}</span>
-        </td>
-        <td class="col-acao">
-          ${isEditable ? `<button class="btn-icon" onclick="removeItem(${index})" title="Eliminar">🗑️</button>` : '🔒'}
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
+    // Registra a sprint automaticamente se ainda não existir
+    if(sprintVal && !sprints.some(s=>s.name === sprintVal)){
+      sprints.push({name: sprintVal, start:"", end:""});
+    }
+    // Registra o tipo automaticamente (com a cor neutra padrão) se ainda não existir
+    if(tipoVal && !tipos.some(t=>t.name === tipoVal || tipoBelongsTo(tipoVal, t.name))){
+      tipos.push({name: tipoVal, bg:"#f1f5f9", tx:"#475569"});
+    }
+
+    const existing = data.find(d=>d.id === idVal);
+    if(existing){
+      if(tipoVal) existing.tipo = tipoVal;
+      if(sprintVal) existing.sprint = sprintVal;
+      if(statusVal) existing.status = statusVal;
+      if(projetoVal) existing.projeto = projetoVal;
+      if(pendVal) existing.pend = pendVal;
+      if(ritmVal) existing.ritmId = ritmVal;
+      if(itemVal) existing.item = itemVal;
+      if(tituloVal) existing.titulo = tituloVal;
+      updated++;
+    } else {
+      data.push({
+        id: idVal,
+        tipo: tipoVal || "ENABLER",
+        item: itemVal,
+        titulo: tituloVal,
+        sprint: sprintVal,
+        sprintHistory: [],
+        projeto: projetoVal,
+        ritmId: ritmVal,
+        status: statusVal,
+        pend: pendVal,
+      });
+      added++;
+    }
+  });
+
+  saveData();
+  saveSprints();
+  saveTipos();
+  renderSprintSelect();
+  renderSprintList();
+  renderTipoFilterOptions();
+  renderTipoList();
+  renderAll();
+
+  const pill = document.getElementById("savePill");
+  pill.textContent = `Importado: ${added} novo(s), ${updated} atualizado(s) ✓`;
+  pill.classList.add("show");
+  setTimeout(()=>{ pill.classList.remove("show"); pill.textContent = "Salvo ✓"; }, 3500);
+}
+
+let debounceTimer = null;
+function debounceSave(){
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(()=>saveData(), 500);
+}
+
+// Rede de segurança: se a aba for fechada/recarregada enquanto um salvamento
+// "adiado" (debounce) ainda está pendente, dispara o envio para o Firebase
+// imediatamente antes de sair, para nunca perder a última letra digitada.
+window.addEventListener("beforeunload", ()=>{
+  if(debounceTimer){
+    clearTimeout(debounceTimer);
+    saveData(false);
   }
+});
 
-  window.updateItem = (index, key, value) => {
-    if (!currentUser) return;
-    state.items[index][key] = value;
-    state.items[index].editadoPor = currentUser.email;
-    state.items[index].dataEdicao = new Date().toLocaleString("pt-BR");
-    saveState();
-  };
-
-  window.removeItem = (index) => {
-    if (!currentUser) return;
-    state.items.splice(index, 1);
-    saveState();
-  };
-
-  document.getElementById("addBtn").onclick = () => {
-    if (!currentUser) return alert("Faça login para adicionar novos itens!");
-    if (!state.items) state.items = [];
-    state.items.push({
-      id: (state.items.length + 1).toString(),
-      titulo: "Nova Demanda",
-      projeto: "Sistema Geral",
-      status: "A Fazer",
-      editadoPor: currentUser.email,
-      dataEdicao: new Date().toLocaleString("pt-BR")
-    });
-    saveState();
-  };
+(async function init(){
+  await initFirestore();
+  await loadData();
+  await loadSprints();
+  const dedup = dedupeCarriedItems(data);
+  if(dedup.changed){
+    data = dedup.list;
+    await saveData(false);
+  }
+  await loadSelectedSprint();
+  await loadTipos();
+  await loadColumnOrder();
+  attachEvents();
+  renderTableHeader();
+  renderSprintSelect();
+  renderSprintList();
+  renderTipoFilterOptions();
+  renderTipoList();
+  renderAll();
+})();
 </script>
 </body>
 </html>
