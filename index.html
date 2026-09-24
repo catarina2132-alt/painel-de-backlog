@@ -17,25 +17,16 @@
     --white:#1f2937;
     --gray:#5b6b7c;
     --gray-dark:#8a97a6;
-    --enabler-bg:#e3ecfa; --enabler-tx:#0b3d91;
-    --split-bg:#f1e9fb;  --split-tx:#6d28d9;
-    --ritm-bg:#fef9c3;   --ritm-tx:#713f12;
     --debt-bg:#fee2e2;   --debt-tx:#b91c1c;
-    --ok-bg:#f8fafc;     --ok-tx:#94a3b8;
-    --warn-bg:#fef3c7;   --warn-tx:#92400e;
-    --icon-blue-bg:#e3ecfa;   --icon-blue-tx:#0b3d91;
-    --icon-green-bg:#dcfce7;  --icon-green-tx:#16a34a;
-    --icon-amber-bg:#fef3c7;  --icon-amber-tx:#d97706;
-    --icon-purple-bg:#f1e9fb; --icon-purple-tx:#7c3aed;
   }
   *{box-sizing:border-box;}
   body{
     margin:0; background:var(--bg); color:var(--white);
     font-family:Calibri,Arial,sans-serif;
-    padding:0 0 60px; /* Ajustado para a barra superior */
+    padding:0 0 60px;
   }
   
-  /* --- ESTILOS DA BARRA DE LOGIN --- */
+  /* --- BARRA DE LOGIN --- */
   .auth-bar {
     display: flex; justify-content: flex-end; align-items: center; gap: 10px;
     padding: 12px 40px; background: #ffffff; border-bottom: 1px solid var(--border);
@@ -55,11 +46,9 @@
   .auth-bar .btn-logout { background: transparent; border: 1px solid var(--debt-tx); color: var(--debt-tx); }
   .auth-bar .btn-logout:hover { background: var(--debt-bg); }
   .user-info { font-size: 13px; color: var(--gray); font-weight: bold; }
-  /* --------------------------------- */
 
   .main-content { padding: 0 40px; }
   
-  /* Estilos Originais do Cabeçalho e Tabela */
   .header-bar{
     background: linear-gradient(135deg, var(--detran-blue) 0%, var(--detran-blue-dark) 100%);
     padding:18px 28px; border-radius:12px; margin-bottom:22px;
@@ -95,16 +84,27 @@
   tbody td{
     padding:8px 10px; border-top:1px solid var(--border); font-size:13px; vertical-align:middle;
   }
+  tbody td input, tbody td select{
+    background:transparent; border:1px solid transparent; color:var(--white);
+    width:100%; font-family:inherit; font-size:13px; padding:5px 6px; border-radius:5px;
+  }
+  tbody td input:focus, tbody td select:focus{
+    border-color:var(--cyan); background:var(--card2); outline:none;
+  }
+  tbody td input:disabled, tbody td select:disabled{ opacity: 0.8; cursor: not-allowed; }
   .footer-note{color:var(--gray-dark); font-size:11.5px; margin-top:14px; text-align:center;}
+  .save-pill{ font-size:11px; color:var(--teal); opacity:0; transition:opacity 0.3s; }
+  .save-pill.show{ opacity:1; }
 </style>
 </head>
 <body>
 
-  <!-- BARRA DE AUTENTICAÇÃO INSERIDA AQUI -->
+  <!-- BARRA DE AUTENTICAÇÃO -->
   <div class="auth-bar" id="authBar">
     <div id="loginSection" style="display: flex; gap: 10px;">
+      <span style="font-size:13px; color:var(--gray); font-weight:bold; align-self:center;">🔒 Modo de Leitura. Entre para editar:</span>
       <input type="email" id="emailInput" placeholder="E-mail de acesso">
-      <input type="password" id="passwordInput" placeholder="Palavra-passe">
+      <input type="password" id="passwordInput" placeholder="Senha">
       <button id="loginBtn" class="btn-login">Entrar</button>
     </div>
     <div id="userSection" style="display: none; align-items: center; gap: 12px;">
@@ -118,7 +118,7 @@
       <div class="header-top-row">
         <div class="brand">
           <div class="detran-logo-box">
-            <img class="detran-logo-img" src="data:image/png;base64,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" alt="Logo Detran.SP">
+            <img class="detran-logo-img" src="data:image/png;base64,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" alt="Logo Detran.SP">
           </div>
         </div>
         <div class="header-divider"></div>
@@ -126,57 +126,61 @@
           <div class="eyebrow">GESTÃO DE SPRINTS</div>
           <h1>Painel de <span>Backlog</span></h1>
         </div>
+        <div style="flex:1;"></div>
+        <button id="addBtn" style="background:#ffffff; color:var(--detran-blue); border:none; padding:10px 18px; border-radius:8px; font-weight:bold; cursor:pointer;">+ Novo item</button>
       </div>
       <div class="subtitle-inline">Planeje e acompanhe Sustentações, Melhorias e Demandas da Sprint.</div>
     </div>
 
-    <!-- Tabela principal -->
+    <span class="save-pill" id="savePill">✓ Alterações salvas no Firebase</span>
+
+    <!-- TABELA PRINCIPAL -->
     <div class="table-wrap">
       <table>
-        <thead id="tableHead">
+        <thead>
           <tr>
-            <th>Nº</th>
-            <th>ID</th>
+            <th style="width:50px;">Nº</th>
+            <th style="width:110px;">ID</th>
             <th>Backlog Técnico</th>
             <th>Título</th>
-            <th>Tipo</th>
-            <th>Status</th>
-            <th>Sprint</th>
+            <th style="width:130px;">Tipo</th>
+            <th style="width:140px;">Status</th>
+            <th style="width:120px;">Sprint</th>
+            <th style="width:50px;">Ação</th>
           </tr>
         </thead>
-        <tbody id="tableBody">
-          <!-- A tabela será populada aqui pelo Firebase ou LocalStorage -->
-        </tbody>
+        <tbody id="tableBody"></tbody>
       </table>
     </div>
     
     <div class="footer-note">Gestão de Sprints © 2026 | Painel de Controle do Backlog | Sincronizado via Firebase</div>
   </div>
 
+<!-- INTEGRACAO COM O SEU FIREBASE -->
 <script type="module">
-  // ==========================================
-  // CONFIGURAÇÃO DO FIREBASE (LÓGICA DE LOGIN)
-  // ==========================================
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // ⚠️ SUBSTITUA AS INFORMAÇÕES ABAIXO PELAS SUAS CHAVES DO FIREBASE ⚠️
+  // SUAS CHAVES REAIS DO FIREBASE
   const firebaseConfig = {
-    apiKey: "COLOQUE_AQUI_A_SUA_API_KEY",
-    authDomain: "COLOQUE_AQUI_O_SEU_AUTH_DOMAIN",
-    projectId: "COLOQUE_AQUI_O_SEU_PROJECT_ID",
-    storageBucket: "COLOQUE_AQUI_O_SEU_STORAGE_BUCKET",
-    messagingSenderId: "COLOQUE_AQUI_O_SEU_MESSAGING_SENDER_ID",
-    appId: "COLOQUE_AQUI_O_SEU_APP_ID"
+    apiKey: "AIzaSyCLBXtg-3VvM4YTbD4OcXU_OthhFsnn8ps",
+    authDomain: "painel-de-backlog.firebaseapp.com",
+    projectId: "painel-de-backlog",
+    storageBucket: "painel-de-backlog.firebasestorage.app",
+    messagingSenderId: "863389774469",
+    appId: "1:863389774469:web:0410fdb381d493253e2fec"
   };
 
-  // Inicializar Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const docRef = doc(db, "backlog_data", "main_state");
 
-  // Elementos de Autenticação na Tela
+  let currentUser = null;
+  let state = { items: [] };
+
+  // ELEMENTOS DE TELA
   const loginSection = document.getElementById('loginSection');
   const userSection = document.getElementById('userSection');
   const emailInput = document.getElementById('emailInput');
@@ -186,53 +190,122 @@
   const userEmail = document.getElementById('userEmail');
   const tableBody = document.getElementById('tableBody');
 
-  // Monitorar Estado de Autenticação (Verifica se está logado)
+  // MONITORAR LOGIN/LOGOUT
   onAuthStateChanged(auth, (user) => {
+    currentUser = user;
     if (user) {
-      // O utilizador tem a sessão iniciada! Mostrar email e esconder senha
       loginSection.style.display = 'none';
       userSection.style.display = 'flex';
       userEmail.textContent = `🟢 Conectado como: ${user.email}`;
-      tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">A carregar dados da tabela...</td></tr>';
-      
-      // (Aqui entraria a sua função original de renderizar a tabela/buscar da base de dados)
-      
     } else {
-      // O utilizador NÃO está com a sessão iniciada. Pedir senha.
       loginSection.style.display = 'flex';
       userSection.style.display = 'none';
       emailInput.value = '';
       passwordInput.value = '';
-      tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#b91c1c; font-weight:bold;">Faça login acima para visualizar e editar o backlog.</td></tr>';
     }
+    render();
   });
 
-  // Ação do Botão de Login
+  // BOTÃO DE LOGIN
   loginBtn.addEventListener('click', () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    
-    if(email && password) {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (email && password) {
       signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          // O login foi um sucesso (o onAuthStateChanged acima será disparado automaticamente)
-        })
-        .catch((error) => {
-          alert('Erro ao entrar. Verifique o e-mail ou a palavra-passe.');
-          console.error(error);
-        });
+        .catch(err => alert("Erro ao entrar: " + err.message));
     } else {
-      alert('Por favor, preencha o E-mail e a Palavra-passe.');
+      alert("Por favor, preencha o e-mail e a senha.");
     }
   });
 
-  // Ação do Botão de Logout (Sair)
-  logoutBtn.addEventListener('click', () => {
-    signOut(auth).catch((error) => {
-      alert('Ocorreu um erro ao sair da conta.');
-    });
+  // BOTÃO DE LOGOUT
+  logoutBtn.addEventListener('click', () => signOut(auth));
+
+  // ESCUTAR BANCO DE DADOS EM TEMPO REAL
+  onSnapshot(docRef, (snapshot) => {
+    if (snapshot.exists()) {
+      state = snapshot.data();
+      render();
+    }
   });
 
+  // SALVAR NO FIREBASE
+  async function saveState() {
+    if (!currentUser) return alert("Faça login para salvar alterações!");
+    const savePill = document.getElementById("savePill");
+    try {
+      await setDoc(docRef, state);
+      savePill.classList.add("show");
+      setTimeout(() => savePill.classList.remove("show"), 2000);
+    } catch (e) {
+      alert("Erro ao salvar: " + e.message);
+    }
+  }
+
+  // DESENHAR A TABELA
+  function render() {
+    tableBody.innerHTML = "";
+    const isEditable = !!currentUser;
+
+    if (!state.items || state.items.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--gray-dark); padding:30px;">Nenhum item cadastrado.</td></tr>`;
+      return;
+    }
+
+    state.items.forEach((item, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="text-align:center; font-weight:bold;">${index + 1}</td>
+        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.id || ''}" onchange="updateItem(${index}, 'id', this.value)"></td>
+        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.backlog || ''}" onchange="updateItem(${index}, 'backlog', this.value)"></td>
+        <td><input type="text" style="font-weight:bold;" ${!isEditable ? 'disabled' : ''} value="${item.titulo || ''}" onchange="updateItem(${index}, 'titulo', this.value)"></td>
+        <td>
+          <select ${!isEditable ? 'disabled' : ''} onchange="updateItem(${index}, 'tipo', this.value)">
+            <option value="ENABLER" ${item.tipo === 'ENABLER' ? 'selected' : ''}>ENABLER</option>
+            <option value="FEATURE" ${item.tipo === 'FEATURE' ? 'selected' : ''}>FEATURE</option>
+            <option value="BUG" ${item.tipo === 'BUG' ? 'selected' : ''}>BUG</option>
+          </select>
+        </td>
+        <td>
+          <select ${!isEditable ? 'disabled' : ''} onchange="updateItem(${index}, 'status', this.value)">
+            <option value="A Fazer" ${item.status === 'A Fazer' ? 'selected' : ''}>A Fazer</option>
+            <option value="Em Andamento" ${item.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
+            <option value="Concluído" ${item.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
+          </select>
+        </td>
+        <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.sprint || 'SP#18'}" onchange="updateItem(${index}, 'sprint', this.value)"></td>
+        <td style="text-align:center;">${isEditable ? `<button onclick="removeItem(${index})" style="background:none; border:none; cursor:pointer;">🗑️</button>` : '🔒'}</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+
+  // MÉTODOS DE EDIÇÃO
+  window.updateItem = (index, key, val) => {
+    if (!currentUser) return;
+    state.items[index][key] = val;
+    saveState();
+  };
+
+  window.removeItem = (index) => {
+    if (!currentUser) return;
+    state.items.splice(index, 1);
+    saveState();
+  };
+
+  document.getElementById("addBtn").onclick = () => {
+    if (!currentUser) return alert("Faça login para adicionar itens!");
+    if (!state.items) state.items = [];
+    state.items.push({
+      id: "STRY00" + (state.items.length + 1),
+      backlog: "Novo Item",
+      titulo: "Título da demanda",
+      tipo: "ENABLER",
+      status: "A Fazer",
+      sprint: "SP#18"
+    });
+    saveState();
+  };
 </script>
 </body>
 </html>
