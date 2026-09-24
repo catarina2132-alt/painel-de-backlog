@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel de Backlog - Com Autenticação</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#eef1f6; --card:#ffffff; --card2:#f3f6fa; --border:#d7e2f2;
+    --detran-blue:#0b3d91; --detran-blue-dark:#082a66; --teal:#3b78c4;
+    --white:#1f2937; --gray:#5b6b7c; --gray-dark:#8a97a6;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--white); font-family:Calibri,Arial,sans-serif; padding:20px 40px 60px; }
+  
+  /* Barra de Autenticação no Topo */
+  .auth-bar {
+    background: #ffffff; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 20px; margin-bottom: 16px; display: flex; align-items: center;
+    justify-content: space-between; font-size: 13px;
+  }
+  .auth-inputs { display: flex; gap: 8px; align-items: center; }
+  .auth-inputs input { border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+  .auth-btn { background: var(--detran-blue); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  .auth-btn:hover { background: var(--detran-blue-dark); }
+  .user-info { display: flex; align-items: center; gap: 12px; font-weight: bold; }
+  .btn-logout { background: #fee2e2; color: #b91c1c; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+
+  .header-bar{ background: linear-gradient(135deg, var(--detran-blue) 0%, var(--detran-blue-dark) 100%); padding:18px 28px; border-radius:12px; margin-bottom:22px; color:#fff; }
+  .header-top-row{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  h1{ font-size:24px; margin:0; }
+  
+  .table-wrap{ overflow-x:auto; border-radius:10px; }
+  table{ width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--border); }
+  thead th{ text-align:left; font-size:11px; color:#ffffff; background:var(--detran-blue); padding:12px 10px; }
+  tbody td{ padding:8px 10px; border-top:1px solid var(--border); font-size:13px; }
+  td input, td select{ background:transparent; border:1px solid transparent; color:var(--white); width:100%; font-size:13px; padding:4px; }
+  td input:disabled, td select:disabled { opacity: 0.8; cursor: not-allowed; }
+  
+  .user-badge { font-size: 11px; color: var(--gray); display: block; font-style: italic; }
+  .save-pill{ font-size:11px; color:var(--teal); opacity:0; transition:opacity 0.3s; }
+  .save-pill.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+  <!-- Barra de Login -->
+  <div class="auth-bar">
+    <div id="loggedOutView" class="auth-inputs">
+      <span>🔑 Modo de Leitura. Entre para editar:</span>
+      <input type="email" id="authEmail" placeholder="Seu E-mail">
+      <input type="password" id="authPassword" placeholder="Senha">
+      <button class="auth-btn" id="btnLogin">Entrar</button>
+      <button class="auth-btn" id="btnRegister" style="background:#3b78c4;">Cadastrar</button>
+    </div>
+    <div id="loggedInView" class="user-info" style="display:none;">
+      <span>🟢 Logado como: <strong id="userNameDisplay"></strong></span>
+      <button class="btn-logout" id="btnLogout">Sair</button>
+    </div>
+  </div>
+
+  <div class="header-bar">
+    <div class="header-top-row">
+      <h1>Painel de <span>Backlog</span></h1>
+      <div style="flex:1;"></div>
+      <button class="auth-btn" id="addBtn" style="background:#fff; color:var(--detran-blue); padding:10px 16px;">+ Novo item</button>
+    </div>
+  </div>
+
+  <span class="save-pill" id="savePill">Guardado no Firebase ✓</span>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50px;">ID</th>
+          <th>Título</th>
+          <th style="width:150px;">Projeto</th>
+          <th style="width:120px;">Status</th>
+          <th style="width:200px;">Última Alteração</th>
+          <th style="width:50px;">Ação</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLBXtg-3VvM4YTbD4OcXU_OthhFsnn8ps",
+      authDomain: "painel-de-backlog.firebaseapp.com",
+      projectId: "painel-de-backlog",
+      storageBucket: "painel-de-backlog.firebasestorage.app",
+      messagingSenderId: "863389774469",
+      appId: "1:863389774469:web:0410fdb381d493253e2fec"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const docRef = doc(db, "backlog_data", "main_state");
+
+    let currentUser = null;
+    let state = { items: [] };
+
+    // Gestão de Estado da Autenticação
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      const loggedOutView = document.getElementById("loggedOutView");
+      const loggedInView = document.getElementById("loggedInView");
+      
+      if (user) {
+        loggedOutView.style.display = "none";
+        loggedInView.style.display = "flex";
+        document.getElementById("userNameDisplay").textContent = user.email;
+      } else {
+        loggedOutView.style.display = "flex";
+        loggedInView.style.display = "none";
+      }
+      render();
+    });
+
+    // Operações de Login / Cadastro / Logout
+    document.getElementById("btnLogin").onclick = async () => {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
+      try { await signInWithEmailAndPassword(auth, email, pass); } 
+      catch (e) { alert("Erro ao entrar: " + e.message); }
+    };
+
+    document.getElementById("btnRegister").onclick = async () => {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
+      try { await createUserWithEmailAndPassword(auth, email, pass); } 
+      catch (e) { alert("Erro ao cadastrar: " + e.message); }
+    };
+
+    document.getElementById("btnLogout").onclick = () => signOut(auth);
+
+    // Escuta de dados do Firestore
+    onSnapshot(docRef, (snapshot) => {
+      if (snapshot.exists()) {
+        state = snapshot.data();
+        render();
+      }
+    });
+
+    async function saveState() {
+      if (!currentUser) return alert("Precisa de fazer Login para salvar alterações!");
+      const savePill = document.getElementById("savePill");
+      try {
+        await setDoc(docRef, state);
+        savePill.classList.add("show");
+        setTimeout(() => savePill.classList.remove("show"), 2000);
+      } catch (err) {
+        alert("Erro ao gravar: " + err.message);
+      }
+    }
+
+    function render() {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+      const isEditable = !!currentUser;
+
+      (state.items || []).forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.id}</td>
+          <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.titulo || ''}" onchange="updateItem(${index}, 'titulo', this.value)"></td>
+          <td><input type="text" ${!isEditable ? 'disabled' : ''} value="${item.projeto || ''}" onchange="updateItem(${index}, 'projeto', this.value)"></td>
+          <td>
+            <select ${!isEditable ? 'disabled' : ''} onchange="updateItem(${index}, 'status', this.value)">
+              <option value="A Fazer" ${item.status === 'A Fazer' ? 'selected' : ''}>A Fazer</option>
+              <option value="Em Andamento" ${item.status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
+              <option value="Concluído" ${item.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
+            </select>
+          </td>
+          <td>
+            <span class="user-badge">${item.editadoPor ? item.editadoPor : 'Sem registo'}</span>
+            <span class="user-badge">${item.dataEdicao ? item.dataEdicao : ''}</span>
+          </td>
+          <td>${isEditable ? `<button onclick="removeItem(${index})">🗑️</button>` : '🔒'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.updateItem = (index, key, value) => {
+      if (!currentUser) return;
+      state.items[index][key] = value;
+      state.items[index].editadoPor = currentUser.email;
+      state.items[index].dataEdicao = new Date().toLocaleString("pt-BR");
+      saveState();
+    };
+
+    window.removeItem = (index) => {
+      if (!currentUser) return;
+      state.items.splice(index, 1);
+      saveState();
+    };
+
+    document.getElementById("addBtn").onclick = () => {
+      if (!currentUser) return alert("Faça login para adicionar novos itens!");
+      if (!state.items) state.items = [];
+      state.items.push({
+        id: (state.items.length + 1).toString(),
+        titulo: "Nova Demanda",
+        projeto: "Projeto",
+        status: "A Fazer",
+        editadoPor: currentUser.email,
+        dataEdicao: new Date().toLocaleString("pt-BR")
+      });
+      saveState();
+    };
+  </script>
+</body>
+</html>
