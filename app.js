@@ -122,29 +122,17 @@ function cell(item,idx,c){
   return `<td><input ${common} value="${esc(item[c])}"></td>`;
 }
 function renderStats(){
-  const row = $("statsRow");
-  if(!row) return;
-  if(!selectedSprint){
-    row.innerHTML = "";
-    return;
-  }
   const items=filteredItems(), total=items.length;
   const done=items.filter(x=>String(x.status).toLowerCase().includes("conclu")).length;
   const doing=items.filter(x=>String(x.status).toLowerCase().includes("andamento")).length;
   const todo=items.filter(x=>String(x.status).toLowerCase().includes("fazer")).length;
   const cards=[["Total",total,"icon-blue"],["A Fazer",todo,"icon-amber"],["Em Andamento",doing,"icon-purple"],["Concluídos",done,"icon-green"]];
-  row.innerHTML=cards.map(([l,v,cl])=>`<div class="stat-card"><div class="stat-icon ${cl}">●</div><div class="stat-body"><div class="label">${l}</div><div class="value-row"><div class="value">${v}</div><div class="pct">${total?Math.round(v/total*100):0}%</div></div><div class="bar-track"><div class="bar-fill ${cl}-bar" style="width:${total?v/total*100:0}%"></div></div></div></div>`).join("");
+  $("statsRow").innerHTML=cards.map(([l,v,cl])=>`<div class="stat-card"><div class="stat-icon ${cl}">●</div><div class="stat-body"><div class="label">${l}</div><div class="value-row"><div class="value">${v}</div><div class="pct">${total?Math.round(v/total*100):0}%</div></div><div class="bar-track"><div class="bar-fill ${cl}-bar" style="width:${total?v/total*100:0}%"></div></div></div></div>`).join("");
 }
 function renderSummary(){
-  const sum = $("sprintSummary");
-  if(!sum) return;
-  if(!selectedSprint){
-    sum.innerHTML = "";
-    return;
-  }
   const items=filteredItems();
   const projects=new Set(items.map(x=>x.projeto).filter(Boolean)).size;
-  sum.innerHTML=`<div class="metric-card"><div class="metric-text"><div class="metric-label">Sprint selecionada</div><div class="metric-value">${esc(selectedSprint||"Todas")}</div><div class="metric-sub">${items.length} item(ns)</div></div></div>
+  $("sprintSummary").innerHTML=`<div class="metric-card"><div class="metric-text"><div class="metric-label">Sprint selecionada</div><div class="metric-value">${esc(selectedSprint||"Todas")}</div><div class="metric-sub">${items.length} item(ns)</div></div></div>
   <div class="metric-card"><div class="metric-text"><div class="metric-label">Projetos</div><div class="metric-value">${projects}</div><div class="metric-sub">no filtro atual</div></div></div>`;
 }
 function renderManagers(){
