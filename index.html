@@ -712,6 +712,22 @@
 </div>
 </div>
  
+  <div class="modal-overlay" id="loginModalOverlay">
+<div class="modal-card">
+<div class="modal-header">
+<h2>Entrar</h2>
+<button class="modal-close" id="closeLoginModalBtn" type="button">✕</button>
+</div>
+<form class="sprint-manager-form" id="loginForm" style="flex-direction:column;align-items:stretch;">
+<input type="email" id="loginEmail" placeholder="E-mail" autocomplete="username" required>
+<input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password" required>
+<button class="btn btn-primary" id="loginSubmitBtn" type="submit">Entrar</button>
+<a href="#" id="forgotPasswordLink" style="font-size:12.5px;color:var(--teal);text-align:center;">Esqueci minha senha</a>
+</form>
+<div class="form-msg" id="loginError" style="min-height:16px;"></div>
+</div>
+</div>
+
   <div class="table-wrap">
 <table>
 <thead id="tableHead"></thead>
