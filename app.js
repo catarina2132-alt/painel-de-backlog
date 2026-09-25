@@ -206,6 +206,7 @@ $("importSprintFileInput").onchange=async e=>{
   await persist(); renderAll();
 };
 
+// Mensagens de erro do Firebase Auth traduzidas para algo que a pessoa entenda
 function authErrorMessage(e){
   const map={
     "auth/invalid-email":"E-mail inválido.",
