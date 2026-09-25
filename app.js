@@ -122,13 +122,6 @@ function cell(item,idx,c){
   return `<td><input ${common} value="${esc(item[c])}"></td>`;
 }
 function renderStats(){
-  const statsContainer = $("statsRow")?.closest(".stats-section") \vert{}\vert{} $("statsRow");
-  if (!selectedSprint) {
-    if (statsContainer) statsContainer.style.display = "none";
-    return;
-  }
-  if (statsContainer) statsContainer.style.display = "";
-
   const items=filteredItems(), total=items.length;
   const done=items.filter(x=>String(x.status).toLowerCase().includes("conclu")).length;
   const doing=items.filter(x=>String(x.status).toLowerCase().includes("andamento")).length;
@@ -136,15 +129,7 @@ function renderStats(){
   const cards=[["Total",total,"icon-blue"],["A Fazer",todo,"icon-amber"],["Em Andamento",doing,"icon-purple"],["Concluídos",done,"icon-green"]];
   $("statsRow").innerHTML=cards.map(([l,v,cl])=>`<div class="stat-card"><div class="stat-icon ${cl}">●</div><div class="stat-body"><div class="label">${l}</div><div class="value-row"><div class="value">${v}</div><div class="pct">${total?Math.round(v/total*100):0}%</div></div><div class="bar-track"><div class="bar-fill ${cl}-bar" style="width:${total?v/total*100:0}%"></div></div></div></div>`).join("");
 }
-
 function renderSummary(){
-  const summaryContainer = $("sprintSummary")?.closest(".summary-section") \vert{}\vert{} $("sprintSummary");
-  if (!selectedSprint) {
-    if (summaryContainer) summaryContainer.style.display = "none";
-    return;
-  }
-  if (summaryContainer) summaryContainer.style.display = "";
-
   const items=filteredItems();
   const projects=new Set(items.map(x=>x.projeto).filter(Boolean)).size;
   $("sprintSummary").innerHTML=`<div class="metric-card"><div class="metric-text"><div class="metric-label">Sprint selecionada</div><div class="metric-value">${esc(selectedSprint||"Todas")}</div><div class="metric-sub">${items.length} item(ns)</div></div></div>
