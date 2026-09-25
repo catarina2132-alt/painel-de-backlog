@@ -1,5 +1,5 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyCLBXtg-3VwM4YTbD4OcXU_OthhFsnn8ps",
+  apiKey: "AIzaSyCLBXtg-3VvM4YTbD4OcXU_OthhFsnn8ps",
   authDomain: "painel-de-backlog.firebaseapp.com",
   projectId: "painel-de-backlog",
   storageBucket: "painel-de-backlog.firebasestorage.app",
