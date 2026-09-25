@@ -2,740 +2,585 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Painel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Backlog - Detran.SP</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <style>
- 
-  :root{
- 
-    --bg:#eef1f6;
- 
-    --card:#ffffff;
- 
-    --card2:#f3f6fa;
- 
-    --border:#d7e2f2;
- 
-    --detran-blue:#0b3d91;
- 
-    --detran-blue-dark:#082a66;
- 
-    --cyan:#0b3d91;
- 
-    --teal:#3b78c4;
- 
-    --white:#1f2937;
- 
-    --gray:#5b6b7c;
- 
-    --gray-dark:#8a97a6;
- 
-    --enabler-bg:#e3ecfa; --enabler-tx:#0b3d91;
- 
-    --split-bg:#f1e9fb;  --split-tx:#6d28d9;
- 
-    --ritm-bg:#fef9c3;   --ritm-tx:#713f12;
- 
-    --debt-bg:#fee2e2;   --debt-tx:#b91c1c;
- 
-    --ok-bg:#f8fafc;     --ok-tx:#94a3b8;
- 
-    --warn-bg:#fef3c7;   --warn-tx:#92400e;
- 
-    --icon-blue-bg:#e3ecfa;   --icon-blue-tx:#0b3d91;
- 
-    --icon-green-bg:#dcfce7;  --icon-green-tx:#16a34a;
- 
-    --icon-amber-bg:#fef3c7;  --icon-amber-tx:#d97706;
- 
-    --icon-purple-bg:#f1e9fb; --icon-purple-tx:#7c3aed;
- 
+  :root {
+    --bg: #eef1f6;
+    --card: #ffffff;
+    --card2: #f8fafc;
+    --border: #d7e2f2;
+    --detran-blue: #0b3d91;
+    --detran-blue-dark: #082a66;
+    --white: #1f2937;
+    --gray: #5b6b7c;
+    --gray-dark: #8a97a6;
+    
+    /* Cores dos ícones */
+    --icon-blue-bg: #e3ecfa;   --icon-blue-tx: #0b3d91;
+    --icon-green-bg: #dcfce7;  --icon-green-tx: #16a34a;
+    --icon-amber-bg: #fef3c7;  --icon-amber-tx: #d97706;
+    --icon-purple-bg: #f1e9fb; --icon-purple-tx: #7c3aed;
   }
- 
-  *{box-sizing:border-box;}
- 
-  body{
- 
-    margin:0; background:var(--bg); color:var(--white);
- 
-    font-family:Calibri,Arial,sans-serif;
- 
-    padding:32px 40px 60px;
- 
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--white);
+    font-family: 'Calibri', Arial, sans-serif;
+    padding: 20px 40px 60px;
   }
- 
-  .header-bar{
- 
+
+  /* BARRA DE STATUS DO TOPO */
+  .top-auth-bar {
+    display: flex; justify-content: flex-end; align-items: center; gap: 12px;
+    padding: 8px 16px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .auth-badge {
+    font-size: 12.5px; font-weight: 600; color: var(--gray);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-top-login {
+    background: var(--detran-blue); color: #ffffff; border: none;
+    padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;
+    font-size: 12.5px; transition: 0.2s;
+  }
+  .btn-top-login:hover { background: var(--detran-blue-dark); }
+  .btn-top-logout {
+    background: #fee2e2; color: #b91c1c; border: none;
+    padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;
+    font-size: 12.5px;
+  }
+
+  /* CABEÇALHO */
+  .header-bar {
     background: linear-gradient(135deg, var(--detran-blue) 0%, var(--detran-blue-dark) 100%);
- 
-    padding:18px 28px; border-radius:12px; margin-bottom:22px;
- 
+    padding: 22px 28px; border-radius: 12px; margin-bottom: 22px;
   }
- 
-  .header-top-row{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
- 
-  .brand{ display:flex; align-items:center; gap:12px; }
- 
-  .detran-logo-box{
- 
-    background:#ffffff; border-radius:8px; padding:8px 14px;
- 
-    display:flex; align-items:center; justify-content:center;
- 
+  .header-top-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .detran-logo-box {
+    background: #ffffff; border-radius: 8px; padding: 6px 14px;
+    display: flex; align-items: center; justify-content: center;
   }
- 
-  .detran-logo-img{ height:26px; width:auto; display:block; }
- 
-  .header-divider{ width:1px; align-self:stretch; background:rgba(255,255,255,0.25); }
- 
-  .header-titles{ display:flex; flex-direction:column; gap:4px; justify-content:center; }
- 
-  .eyebrow{
- 
-    display:inline-block; width:fit-content; border:1px solid rgba(255,255,255,0.5); color:#ffffff;
- 
-    background:rgba(255,255,255,0.08);
- 
-    font-size:11px; font-weight:bold; letter-spacing:1px;
- 
-    padding:5px 14px; border-radius:20px;
- 
+  .detran-logo-img { height: 26px; width: auto; display: block; }
+  .header-titles { display: flex; flex-direction: column; gap: 4px; }
+  .eyebrow {
+    display: inline-block; width: fit-content; border: 1px solid rgba(255,255,255,0.4); color: #ffffff;
+    background: rgba(255,255,255,0.1); font-size: 10px; font-weight: bold; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px;
   }
- 
-  h1{
- 
-    font-size:24px; margin:0; color:#ffffff;
- 
+  h1 { font-size: 22px; margin: 0; color: #ffffff; }
+  h1 span { color: #bcd4f5; }
+  .subtitle-inline { color: #cfe0f7; font-size: 12px; margin-top: 6px; max-width: 600px; }
+
+  .header-sprint-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+  .sprint-nav-control {
+    display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 2px;
   }
- 
-  h1 span{color:#bcd4f5;}
- 
-  .subtitle-inline{ color:#cfe0f7; font-size:12.5px; max-width:520px; margin-top:8px; }
- 
-  .header-sprint-row{ display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap; margin-top:14px; }
- 
-  .header-right{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
- 
-  .sprint-nav{ display:flex; flex-direction:column; gap:4px; }
- 
-  .sprint-nav label{ font-size:10.5px; color:#cfe0f7; letter-spacing:.3px; }
- 
-  .sprint-nav-control{
- 
-    display:flex; align-items:center; gap:4px; background:rgba(255,255,255,0.08);
- 
-    border:1px solid rgba(255,255,255,0.3); border-radius:8px; padding:3px;
- 
+  .sprint-nav-control select {
+    background: transparent; border: none; color: #ffffff; font-size: 13px; font-weight: bold;
+    padding: 6px 10px; cursor: pointer; outline: none;
   }
- 
-  .sprint-nav-control select{
- 
-    background:transparent; border:none; color:#ffffff; font-size:13px; font-weight:bold;
- 
-    padding:5px 6px; min-width:110px; font-family:inherit;
- 
+  .sprint-nav-control select option { color: #0f172a; }
+  .sprint-nav-control button {
+    background: rgba(255,255,255,0.15); border: none; color: #ffffff; width: 26px; height: 26px;
+    border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
- 
-  .sprint-nav-control select option{ color:#0f172a; }
- 
-  .sprint-nav-control button{
- 
-    background:rgba(255,255,255,0.12); border:none; color:#ffffff; width:26px; height:26px;
- 
-    border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer;
- 
+  .date-badge {
+    display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 6px 14px;
+    color: #ffffff; font-size: 12.5px; font-weight: bold;
   }
- 
-  .sprint-nav-control button:hover{ background:rgba(255,255,255,0.25); }
- 
-  .sprint-nav-control button svg{ width:14px; height:14px; }
- 
-  .date-badge{
- 
-    display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08);
- 
-    border:1px solid rgba(255,255,255,0.3); border-radius:8px; padding:9px 14px;
- 
-    color:#ffffff; font-size:13px; font-weight:bold; white-space:nowrap;
- 
+
+  .btn-header-primary {
+    display: flex; align-items: center; gap: 6px; background: #ffffff; color: var(--detran-blue);
+    border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: bold;
+    cursor: pointer; white-space: nowrap;
   }
- 
-  .date-badge svg{ width:16px; height:16px; opacity:.85; }
- 
- 
-  /* Autenticação discreta no topo */
- 
-  .auth-bar {
- 
-    display: flex;
- 
-    align-items: center;
- 
-    gap: 8px;
- 
-    background: rgba(255, 255, 255, 0.08);
- 
-    border: 1px solid rgba(255, 255, 255, 0.3);
- 
-    border-radius: 8px;
- 
-    padding: 6px 12px;
- 
-    font-size: 12px;
- 
-    color: #fff;
- 
+  .btn-header-primary:hover { background: #e6eefc; }
+
+  .spacer { flex: 1; }
+
+  /* CARTÕES DE INDICADORES - LINHA 1 */
+  .sprint-summary { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; flex: 1; min-width: 180px; display: flex; gap: 12px; align-items: center;
   }
- 
-  .auth-bar button {
- 
-    background: #ffffff;
- 
-    color: var(--detran-blue);
- 
-    border: none;
- 
-    border-radius: 6px;
- 
-    padding: 4px 10px;
- 
-    font-weight: bold;
- 
-    cursor: pointer;
- 
-    font-size: 11px;
- 
+  .kpi-icon {
+    width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 18px; flex-shrink: 0;
   }
- 
-  .auth-bar button:hover { background: #e6eefc; }
- 
-  .btn-header-primary{
- 
-    display:flex; align-items:center; gap:7px; background:#ffffff; color:var(--detran-blue);
- 
-    border:none; border-radius:8px; padding:10px 18px; font-size:13px; font-weight:bold;
- 
-    cursor:pointer; white-space:nowrap;
- 
+  .kpi-body { flex: 1; }
+  .kpi-label { font-size: 11px; color: var(--gray); margin-bottom: 2px; }
+  .kpi-value { font-size: 20px; font-weight: bold; color: var(--white); }
+  .kpi-subtext { font-size: 11px; color: var(--gray-dark); margin-top: 2px; }
+  .progress-bar-track { background: #e2e8f0; border-radius: 4px; height: 5px; width: 100%; margin-top: 6px; }
+  .progress-bar-fill { background: var(--detran-blue); height: 100%; border-radius: 4px; width: 0%; transition: width 0.3s; }
+
+  /* CARTÕES DE INDICADORES - LINHA 2 */
+  .stats-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .cat-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; flex: 1; min-width: 200px; display: flex; gap: 12px; align-items: flex-start;
+    border-top: 3px solid var(--border);
   }
- 
-  .btn-header-primary:hover{ background:#e6eefc; }
- 
-  .btn-header-primary svg{ width:15px; height:15px; }
- 
-  .btn-icon-badge{
- 
-    display:flex; align-items:center; justify-content:center;
- 
-    width:20px; height:20px; border-radius:50%; background:var(--detran-blue); color:#ffffff; flex-shrink:0;
- 
+  .cat-card.blue { border-top-color: #3b82f6; }
+  .cat-card.green { border-top-color: #22c55e; }
+  .cat-card.purple { border-top-color: #a855f7; }
+  .cat-card.yellow { border-top-color: #eab308; }
+
+  /* FILTROS E PESQUISA */
+  .filters-row { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-field, .select-field {
+    display: flex; align-items: center; gap: 8px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 8px; padding: 0 12px;
   }
- 
-  .btn-icon-badge svg{ width:12px; height:12px; }
- 
-  .search-field, .select-field{
- 
-    display:flex; align-items:center; gap:8px; background:var(--card2);
- 
-    border:1px solid var(--border); border-radius:8px; padding:0 12px;
- 
+  .search-field input, .select-field select {
+    border: none; background: transparent; padding: 8px 0; font-size: 13px; color: var(--white); outline: none;
   }
- 
-  .search-field svg, .select-field svg{ width:15px; height:15px; color:var(--gray-dark); flex-shrink:0; }
- 
-  .search-field input{
- 
-    border:none; background:transparent; padding:9px 0; font-size:13px; min-width:220px; color:var(--white);
- 
+
+  /* TABELA */
+  .table-wrap { overflow-x: auto; border-radius: 10px; background: var(--card); border: 1px solid var(--border); }
+  table { width: 100%; min-width: 1200px; border-collapse: collapse; }
+  thead th {
+    text-align: left; font-size: 11.5px; color: #ffffff; background: var(--detran-blue);
+    padding: 12px 14px; font-weight: bold;
   }
- 
-  .search-field input:focus, .select-field select:focus{ outline:none; }
- 
-  .select-field select{
- 
-    border:none; background:transparent; padding:9px 0; font-size:13px; color:var(--white);
- 
+  tbody td { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  tbody tr:hover { background: #f1f5f9; }
+  
+  .empty-state { text-align: center; color: var(--gray-dark); padding: 40px; font-style: italic; }
+  .footer-note { color: var(--gray-dark); font-size: 11.5px; margin-top: 20px; text-align: center; }
+
+  /* =========================================
+     ESTILO DO MODAL DE LOGIN (CORES MANTIDAS)
+     ========================================= */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 25, 44, 0.65);
+    backdrop-filter: blur(5px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
   }
- 
-  .settings-dropdown{ position:relative; }
- 
-  .btn-settings-header{
- 
-    display:flex; align-items:center; gap:8px; background:#ffffff; color:var(--detran-blue);
- 
-    border:none; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:bold;
- 
-    cursor:pointer; white-space:nowrap;
- 
+  .login-modal {
+    background: #ffffff; width: 90%; max-width: 390px;
+    border-radius: 16px; padding: 32px 28px 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    position: relative; font-family: 'Calibri', Arial, sans-serif;
+    animation: modalFadeIn 0.2s ease-out;
   }
- 
-  .btn-settings-header:hover{ background:#e6eefc; }
- 
-  .btn-settings-header svg{ width:15px; height:15px; }
- 
-  .btn-settings-header svg.chevron{ width:13px; height:13px; margin-left:-2px; }
- 
-  .settings-menu{
- 
-    display:none; position:absolute; top:calc(100% + 8px); right:0; z-index:50;
- 
-    background:var(--card); border:1px solid var(--border); border-radius:10px;
- 
-    box-shadow:0 12px 30px rgba(0,0,0,0.18); padding:6px; min-width:230px;
- 
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
   }
- 
-  .settings-menu.open{ display:block; }
- 
-  .settings-menu-item{
- 
-    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
- 
-    background:transparent; border:none; padding:9px 12px; border-radius:6px;
- 
-    font-size:13px; color:var(--white); cursor:pointer; font-family:inherit;
- 
+  .close-modal-btn {
+    position: absolute; top: 16px; right: 18px;
+    background: #f1f5f9; border: none; width: 30px; height: 30px;
+    border-radius: 50%; font-size: 14px; color: #64748b;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
   }
- 
-  .settings-menu-item:hover{ background:var(--card2); }
- 
-  .settings-menu-item svg{ width:15px; height:15px; color:var(--gray); flex-shrink:0; }
- 
-  .settings-menu-divider{ height:1px; background:var(--border); margin:5px 4px; }
- 
-  .modal-overlay{
- 
-    display:none; position:fixed; inset:0; background:rgba(4,7,14,0.72);
- 
-    z-index:100; align-items:center; justify-content:center; padding:20px;
- 
+  .close-modal-btn:hover { background: #e2e8f0; color: #0b3d91; }
+
+  .login-modal-header { text-align: center; margin-bottom: 22px; }
+  .detran-badge {
+    display: inline-block; background: #e3ecfa; color: #0b3d91;
+    font-size: 11px; font-weight: 700; padding: 4px 12px;
+    border-radius: 20px; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase;
   }
- 
-  .modal-overlay.open{ display:flex; }
- 
-  .modal-card{
- 
-    background:var(--card); border:1px solid var(--border); border-radius:12px;
- 
-    padding:22px 26px; width:100%; max-width:640px; max-height:80vh; overflow-y:auto;
- 
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);
- 
+  .login-modal-header p {
+    margin: 4px 0 0; font-size: 13.5px; color: #64748b; font-weight: 500;
   }
- 
-  .modal-header{
- 
-    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
- 
+
+  .login-form-group { margin-bottom: 16px; text-align: left; }
+  .login-form-group label {
+    display: block; font-size: 12.5px; font-weight: 600; color: #1e293b; margin-bottom: 6px;
   }
- 
-  .modal-header h2{ font-size:18px; margin:0; color:var(--white); }
- 
-  .modal-close{
- 
-    background:transparent; border:none; color:var(--gray); cursor:pointer; font-size:16px;
- 
-    padding:4px 10px; border-radius:6px;
- 
+  .login-input-wrapper { position: relative; display: flex; align-items: center; }
+  .login-input-wrapper span { position: absolute; left: 14px; font-size: 15px; color: #94a3b8; }
+  .login-input-wrapper input {
+    width: 100%; padding: 11px 14px 11px 42px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-size: 14px; color: #0f172a; outline: none;
+    transition: all 0.2s ease; background: #f8fafc; box-sizing: border-box;
   }
- 
-  .modal-close:hover{ color:var(--white); background:var(--card2); }
- 
-  .sprint-manager-form{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
- 
-  .sprint-manager-form input[type=text], .sprint-manager-form input[type=date]{
- 
-    background:var(--card2); border:1px solid var(--border); color:var(--white);
- 
-    padding:8px 12px; border-radius:8px; font-size:13px;
- 
+  .login-input-wrapper input:focus {
+    border-color: #0b3d91; background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.12);
   }
- 
-  .sprint-list{ display:flex; flex-direction:column; gap:6px; }
- 
-  .sprint-list-row{
- 
-    display:flex; align-items:center; gap:14px; background:var(--card2);
- 
-    border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:13px;
- 
+
+  .btn-login-submit {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, #0b3d91 0%, #082a66 100%);
+    color: #ffffff; border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    margin-top: 8px; transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(11, 61, 145, 0.25);
   }
- 
-  .sprint-list-row .sp-name{ font-weight:bold; color:var(--cyan); min-width:110px; }
- 
-  .sprint-list-row .sp-dates{ color:var(--gray); flex:1; }
- 
-  .tipo-manager-form{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
- 
-  .color-field{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gray); }
- 
-  .color-field input[type=color]{
- 
-    width:34px; height:30px; border:1px solid var(--border); border-radius:6px;
- 
-    padding:2px; background:var(--card2); cursor:pointer;
- 
+  .btn-login-submit:hover { background: #082a66; }
+
+  .forgot-password-link {
+    display: block; text-align: center; margin-top: 16px;
+    font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 600;
   }
- 
-  .form-msg{ font-size:12.5px; color:var(--debt-tx); min-height:16px; margin-bottom:8px; }
- 
-  .stats-row{ display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
- 
-  .stat-card{
- 
-    background:var(--card); border:1px solid var(--border); border-radius:10px;
- 
-    padding:16px 20px; flex:1; min-width:200px; cursor:pointer; transition:border-color .15s, box-shadow .15s;
- 
-    border-top:3px solid var(--border); display:flex; gap:12px; align-items:flex-start;
- 
+  .forgot-password-link:hover { text-decoration: underline; }
+
+  .auth-feedback {
+    margin-top: 14px; font-size: 12.5px; text-align: center; line-height: 1.4;
   }
- 
-  .stat-card:hover{ border-color:var(--cyan); }
- 
-  .stat-card.active{ box-shadow:0 0 0 3px rgba(11,61,145,0.12); }
- 
-  .stat-card .stat-icon{
- 
-    width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
- 
-  }
- 
-  .stat-card .stat-icon svg{ width:18px; height:18px; }
- 
-  .stat-card .stat-body{ flex:1; min-width:0; }
- 
-  .stat-card .label{color:var(--white); font-size:13px; font-weight:bold; margin-bottom:6px;}
- 
-  .stat-card .value-row{display:flex; align-items:baseline; gap:8px; margin-bottom:10px;}
- 
-  .stat-card .value{font-size:22px; font-weight:bold;}
- 
-  .stat-card .pct{color:var(--gray); font-size:12.5px;}
- 
-  .bar-track{background:var(--card2); border-radius:6px; height:6px; overflow:hidden;}
- 
-  .bar-fill{height:100%; border-radius:6px;}
- 
-  .icon-blue{ background:var(--icon-blue-bg); color:var(--icon-blue-tx); }
- 
-  .icon-green{ background:var(--icon-green-bg); color:var(--icon-green-tx); }
- 
-  .icon-amber{ background:var(--icon-amber-bg); color:var(--icon-amber-tx); }
- 
-  .icon-purple{ background:var(--icon-purple-bg); color:var(--icon-purple-tx); }
- 
-  .icon-blue-bar{ background:var(--icon-blue-tx); }
- 
-  .icon-green-bar{ background:var(--icon-green-tx); }
- 
-  .icon-amber-bar{ background:var(--icon-amber-tx); }
- 
-  .icon-purple-bar{ background:var(--icon-purple-tx); }
- 
-  .sprint-summary{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
- 
-  .metric-card{
- 
-    flex:1; min-width:190px; background:var(--card); border:1px solid var(--border); border-radius:10px;
- 
-    padding:14px 16px; display:flex; gap:12px; align-items:flex-start;
- 
-  }
- 
-  .metric-card.muted{ opacity:.85; }
- 
-  .metric-icon{
- 
-    width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
- 
-  }
- 
-  .metric-icon svg{ width:18px; height:18px; }
- 
-  .metric-text{ min-width:0; flex:1; }
- 
-  .metric-label{ font-size:11.5px; color:var(--gray); margin-bottom:4px; }
- 
-  .metric-value{ font-size:20px; font-weight:bold; color:var(--white); }
- 
-  .metric-sub{ font-size:11.5px; color:var(--gray-dark); margin-top:2px; }
- 
-  .metric-bar-track{ background:var(--card2); border-radius:6px; height:5px; overflow:hidden; margin-top:6px; }
- 
-  .metric-bar-fill{ height:100%; border-radius:6px; }
- 
-  .filters-row{
- 
-    display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;
- 
-  }
- 
-  .btn{
- 
-    border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:bold;
- 
-    cursor:pointer; font-family:inherit;
- 
-  }
- 
-  .btn-primary{background:var(--cyan); color:#ffffff;}
- 
-  .btn-primary:hover{background:var(--detran-blue-dark);}
- 
-  .btn-ghost{background:transparent; border:1px solid var(--border); color:var(--gray);}
- 
-  .btn-ghost:hover{color:var(--white); border-color:var(--gray-dark);}
- 
-  .spacer{flex:1;}
- 
-  .table-wrap{ overflow-x:auto; border-radius:10px; }
- 
-  table{
- 
-    width:100%; min-width:1420px; border-collapse:collapse; background:var(--card);
- 
-    border:1px solid var(--border); border-radius:10px; overflow:hidden;
- 
-  }
- 
-  thead th{
- 
-    text-align:left; font-size:11px; letter-spacing:0.5px; color:#ffffff;
- 
-    background:var(--detran-blue); padding:12px 10px; font-weight:bold;
- 
-  }
- 
-  thead th.col-draggable{ cursor:grab; user-select:none; }
- 
-  thead th.col-draggable:hover{ background:var(--detran-blue-dark); }
- 
-  tbody td{
- 
-    padding:8px 10px; border-top:1px solid var(--border); font-size:13px; vertical-align:middle;
- 
-  }
- 
-  tbody tr:hover{background:#f2f6fc;}
- 
-  td input, td textarea{
- 
-    background:transparent; border:1px solid transparent; color:var(--white);
- 
-    width:100%; font-family:inherit; font-size:13px; padding:5px 6px; border-radius:5px;
- 
-  }
- 
-  td input:focus, td textarea:focus{ border-color:var(--cyan); background:var(--card2); outline:none; }
- 
-  td textarea{ resize:none; overflow:hidden; white-space:pre-wrap; display:block; line-height:1.4; min-height:28px; }
- 
- 
-  select.tipo-select, select.status-select, select.sprint-select, select.projeto-select {
- 
-    border:none; border-radius:6px; padding:7px 8px; font-size:11.5px; font-weight:bold;
- 
-    width:100%; font-family:inherit; cursor:pointer; background:var(--card2); color:var(--white);
- 
-  }
- 
-  select.tipo-select:focus, select.status-select:focus, select.sprint-select:focus, select.projeto-select:focus {
- 
-    outline:2px solid var(--cyan); outline-offset:1px;
- 
-  }
- 
- 
-  .del-btn{
- 
-    background:transparent; border:none; color:var(--gray-dark); cursor:pointer; font-size:16px;
- 
-    padding:4px 8px; border-radius:6px;
- 
-  }
- 
-  .del-btn:hover{color:var(--debt-tx); background:var(--debt-bg);}
- 
-  .footer-note{color:var(--gray-dark); font-size:11.5px; margin-top:14px; text-align:center;}
- 
-  .save-pill{ font-size:11px; color:var(--teal); opacity:0; transition:opacity 0.3s; }
- 
-  .save-pill.show{opacity:1;}
+  .auth-feedback.error { color: #dc2626; }
+  .auth-feedback.success { color: #16a34a; }
 </style>
 </head>
 <body>
- 
-  <div class="header-bar">
-<div class="header-top-row">
-<div class="brand">
-<div class="detran-logo-box">
-<img class="detran-logo-img" src="data:image/png;base64,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" alt="Logo Detran.SP">
-</div>
-</div>
-<div class="header-divider"></div>
-<div class="header-titles">
-<div class="eyebrow">GESTÃO DE SPRINTS</div>
-<h1>Painel de <span>Backlog</span></h1>
-</div>
-<div class="spacer"></div>
- 
-<!-- BARRA DE AUTENTICAÇÃO DO FIREBASE DISCRETA -->
-<div id="authContainer" class="auth-bar">
-<span id="authStatusText">A verificar sessão...</span>
-<button type="button" id="authActionBtn">Entrar</button>
-</div>
- 
-      <div class="settings-dropdown">
-<button class="btn-settings-header" id="settingsBtn" type="button" title="Configurações">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
- 
-          Configurações
-<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-</button>
-<div class="settings-menu" id="settingsMenu">
-<button class="settings-menu-item" id="toggleSprintManagerBtn" type="button">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
- 
-            Gerenciar Sprints
-</button>
-<button class="settings-menu-item" id="toggleTipoManagerBtn" type="button">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 12.6 12 21 3 12V3h9l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
- 
-            Gerenciar Tipos
-</button>
-<button class="settings-menu-item" id="resetColumnsBtn" type="button">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
- 
-            Ordem das Colunas
-</button>
-<button class="settings-menu-item" id="resetBtn" type="button">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.5 15a9 9 0 1 0 2-9.4L1 10"/></svg>
- 
-            Restaurar Original
-</button>
-<div class="settings-menu-divider"></div>
-<button class="settings-menu-item" id="importSprintBtn" type="button">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 21h16"/></svg>
- 
-            Importar Sprint (Excel)
-</button>
-<button class="settings-menu-item" id="exportBackupBtn" type="button">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 21h16"/></svg>
- 
-            Exportar Backup (Excel)
-</button>
-<input type="file" id="importSprintFileInput" accept=".xlsx,.xls,.csv" style="display:none">
-</div>
-</div>
-<button class="btn-header-primary" id="addBtn">
-<span class="btn-icon-badge">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-</span>
- 
-        Novo item
-</button>
-</div>
- 
-    <div class="subtitle-inline">Planeje e acompanhe Sustentações, Melhorias e Demandas da Sprint. Todas as alterações são refletidas automaticamente nos indicadores do painel.</div>
- 
-    <div class="header-sprint-row">
-<div class="sprint-nav">
-<label>Sprint atual</label>
-<div class="sprint-nav-control">
-<select id="sprintSelect">
-<option value="">Todos os itens</option>
-</select>
-<button type="button" id="prevSprintBtn" title="Sprint anterior">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-</button>
-<button type="button" id="nextSprintBtn" title="Próxima sprint">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-</button>
-</div>
-</div>
-<div class="date-badge">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-<span id="sprintDateBadge">—</span>
-</div>
-</div>
-</div>
- 
-  <div class="sprint-summary" id="sprintSummary"></div>
-<div class="stats-row" id="statsRow"></div>
- 
-  <div class="filters-row">
-<div class="search-field">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-<input type="text" id="searchInput" placeholder="Buscar por ID, item, título, projeto ou sprint.">
-</div>
-<div class="select-field">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 4 21 4 14 12.5 14 19 10 21 10 12.5 3 4"/></svg>
-<select id="filterTipo">
-<option value="">Todos os tipos</option>
-</select>
-</div>
-<div class="spacer"></div>
-<span class="save-pill" id="savePill">Salvo ✓</span>
-</div>
- 
-  <div class="modal-overlay" id="sprintModalOverlay">
-<div class="modal-card">
-<div class="modal-header">
-<h2>Gerenciar Sprints</h2>
-<button class="modal-close" id="closeSprintManagerBtn" type="button">✕</button>
-</div>
-<div class="sprint-manager-form">
-<input type="text" id="newSprintName" placeholder="Nome (ex: SP#18)">
-<input type="date" id="newSprintStart">
-<input type="date" id="newSprintEnd">
-<button class="btn btn-primary" id="addSprintBtn" type="button">+ Adicionar / Atualizar Sprint</button>
-</div>
-<div class="sprint-list" id="sprintList"></div>
-</div>
-</div>
- 
-  <div class="modal-overlay" id="tipoModalOverlay">
-<div class="modal-card">
-<div class="modal-header">
-<h2>Gerenciar Tipos</h2>
-<button class="modal-close" id="closeTipoManagerBtn" type="button">✕</button>
-</div>
-<div class="tipo-manager-form">
-<input type="text" id="newTipoName" placeholder="Nome do tipo (ex: FEATURE)">
-<label class="color-field">Fundo <input type="color" id="newTipoBg" value="#f1f5f9"></label>
-<label class="color-field">Texto <input type="color" id="newTipoTx" value="#475569"></label>
-<button class="btn btn-primary" id="addTipoBtn" type="button">+ Adicionar Tipo</button>
-</div>
-<div class="form-msg" id="tipoManagerMsg"></div>
-<div class="sprint-list" id="tipoList"></div>
-</div>
-</div>
- 
-  <div class="modal-overlay" id="loginModalOverlay">
-<div class="modal-card">
-<div class="modal-header">
-<h2>Entrar</h2>
-<button class="modal-close" id="closeLoginModalBtn" type="button">✕</button>
-</div>
-<form class="sprint-manager-form" id="loginForm" style="flex-direction:column;align-items:stretch;">
-<input type="email" id="loginEmail" placeholder="E-mail" autocomplete="username" required>
-<input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password" required>
-<button class="btn btn-primary" id="loginSubmitBtn" type="submit">Entrar</button>
-<a href="#" id="forgotPasswordLink" style="font-size:12.5px;color:var(--teal);text-align:center;">Esqueci minha senha</a>
-</form>
-<div class="form-msg" id="loginError" style="min-height:16px;"></div>
-</div>
-</div>
 
+  <!-- BARRA DE STATUS DE AUTENTICAÇÃO -->
+  <div class="top-auth-bar">
+    <div id="loggedOutBar" class="auth-badge">
+      <span>🔒 Não autenticado</span>
+      <button id="openLoginModalBtn" class="btn-top-login">Entrar</button>
+    </div>
+    <div id="loggedInBar" class="auth-badge" style="display: none;">
+      <span id="userEmailSpan">🟢 Conectado</span>
+      <button id="logoutBtn" class="btn-top-logout">Sair</button>
+    </div>
+  </div>
+
+  <!-- CABEÇALHO DETRAN.SP -->
+  <div class="header-bar">
+    <div class="header-top-row">
+      <div class="brand">
+        <div class="detran-logo-box">
+          <img class="detran-logo-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOoAAAA7CAYAAAB19hbEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAmLSURBVHhe7Z1PiBvXHce/TkziLpTGi0VjsB5r6MFse1ikm0ekDikJOXQRuGCNKElzKTnsil4knYpjepJ00+6h0DYtNJW0pKZia2roxW6iWUgabUUPxsSHODOJDVZsx/G/2DFsD5rf9OlpJI20moxG+/vAYPHe/NPzfN/v936/32j37ezs7IBhmKnmKbWBYZjpg4XKMCGAhcowIYCFyjAhgIXKMCFgXxBR3zd/31KbPHH44IHOv88dwOGDB/DT2PPqLgwzkwQi1H16XW0ai4XIHBYic3j9BYETi4ewEJlTd2GYmSDUQpUhwb71s2NqF8OEnpkRKsGCZWaRmQsmXW0/wJmzl/HWXy+rXQwTWmZOqMSZs5dxNPNPXG0/ULsYJnTMrFBhW9cXf9NQmxkmdMy0UMFiZWaEmRcqAFy89AWvWZlQsyeECnvNevHSF2ozw4SCPSNUAHjjt9tqE8OEgj0l1KvtB/jTv0y1mWGmnkCEejh6UG361jhzlteqTPgIRqhHDuJHMRGIYK+2H/BalQkdgZQQxsv/dT4/fvQEN9t3cfPGXTx+9KRrP784ffKYpxJD07LQMAy1GQAgolEkNE1tZiZIpVaDZXaWKpqmQQgBEY2quw39f+p3XJgIXKjE40dPcPerh7h14x7ufvVQ7Z4oC5E5fFJ+WW3uoVAsolAqqc1dCCGQ0DREjxxBPpdTu5kxqNRqWFldVZsBAGldRy6b7RKeaVlYisW69nMjn81C1/VQinZqhCrz+NETXLdu42b7rto1MXaqSbWpBy9ClXF7iCZFpVZDrVYD7MlhvVxWd5kJSKRCCOSyWSQ0DSIaRcMwUNvYQKVaRULTsL625owzCTWhaUilUuopYZkmqhsbME0TQghs1uu+/B/5yVQKlSC3+Lp1W+3aNZ+UXx76/qosVLKchGmaru4WiWjSbrF8LwlNw2bdvzeQgoIEJ4RAq9lUuwFpHPLZrOPB0HFpXR84gRWKRVQ3NgAgdGINJJjklWee3e9b4GnUYv2EpmG9XHa2zXodt9pttLa3kc9mnf1M08RKJtN1LDMa+qlTapNDPpdDWtdhbG2pXUPJ53LQT52CaZqoVqtq91Qz1UIlVME+8+x+dZfAENEo8rlcl4XzKlYKgrhZ5klC1zEtS+1y8LKPF3bzneiYqBBqVxc0UY4DWeFxhB4koRAq8c3D+7j3+RV8c2P3udBRLeowEprWZVn7PaymZaFQLGI+EsFSLIblZBLLySSW4nEsJ5M9x9C+8lq5YRiYj0QwH4lgOdlZa1dqtZ4207KwFI8711HPbVoWVjKZrntZisWwFI+jUCwCgNM/H4k4bQCwFI877SRw+VrLySTmIxGsZDKexU+u6JbPIhJC9IzFtBMKod7/8g6ufPAhPr5wDveuXVG7x+LE4iG1apdout533S41TQNZG1m/m54f0a0j1q3y2v3f9S6U2s/13Xv33/83q/v/jO86r898D2S4pD90O1a1Sre3t/3A4i9O0O1a1Sre3N7uBxb/c4Ju16pW8e72dn6+S3+m331/f1O/2X1/2f3a61f3661b3651bXy/3P1y69vX9+3t/mBxX3e632bXv3e3fXf432b2b1S+fXb9O/05d/0fX33b9i32X1i8e2b8u305v+9v83fO1P7d9v55n0vN530u1+8f9/d2f7S6f1r2c59L7/b3/f3R3f3y1e/fX/fX///+A==" alt="Logo Detran.SP">
+        </div>
+      </div>
+      <div class="header-titles">
+        <div class="eyebrow">GESTÃO DE SPRINTS</div>
+        <h1>Painel de <span>Backlog</span></h1>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn-header-primary" id="settingsBtn">⚙️ Configurações</button>
+      <button class="btn-header-primary" id="addBtn">+ Novo item</button>
+    </div>
+
+    <div class="subtitle-inline">Planeje e acompanhe Sustentações, Melhorias e Demandas da Sprint. Todas as alterações são refletidas automaticamente nos indicadores do painel.</div>
+
+    <div class="header-sprint-row">
+      <div class="sprint-nav-control">
+        <select id="sprintSelect"><option value="SP#18">SP#18</option></select>
+        <button id="prevSprintBtn">❮</button>
+        <button id="nextSprintBtn">❯</button>
+      </div>
+      <div class="date-badge">📅 <span id="sprintDateBadge">12/11/2026 – 20/11/2026</span></div>
+    </div>
+  </div>
+
+  <!-- LINHA 1: INDICADORES DA SPRINT -->
+  <div class="sprint-summary">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--icon-blue-bg); color:var(--icon-blue-tx);">📚</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Itens vinculados</div>
+        <div class="kpi-value" id="kpiTotal">0</div>
+        <div class="kpi-subtext">Total do backlog</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--icon-green-bg); color:var(--icon-green-tx);">✅</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Concluídos na sprint</div>
+        <div class="kpi-value" id="kpiConcluidos">0</div>
+        <div class="kpi-subtext" id="kpiConcluidosPct">0% do total</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--icon-amber-bg); color:var(--icon-amber-tx);">🕒</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Não concluídos na sprint</div>
+        <div class="kpi-value" id="kpiNaoConcluidos">0</div>
+        <div class="kpi-subtext" id="kpiNaoConcluidosPct">0% do total</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-tx);">➡️</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Carregados para próxima sprint</div>
+        <div class="kpi-value" id="kpiCarregados">0</div>
+        <div class="kpi-subtext" id="kpiCarregadosPct">0% do total</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--icon-blue-bg); color:var(--icon-blue-tx);">🚩</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Entrega da sprint</div>
+        <div class="kpi-value" id="kpiEntregaPct">0%</div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="kpiEntregaBar"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINHA 2: INDICADORES POR CATEGORIA -->
+  <div class="stats-row">
+    <div class="cat-card blue">
+      <div class="kpi-icon" style="background:var(--icon-blue-bg); color:var(--icon-blue-tx);">⭐</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Melhorias</div>
+        <div class="kpi-value"><span id="catMelhoriasCount">0</span> <span style="font-size:12px; font-weight:normal; color:var(--gray);">de <span id="catMelhoriasTotal">0</span></span></div>
+        <div class="kpi-subtext" id="catMelhoriasPct">0%</div>
+      </div>
+    </div>
+    <div class="cat-card green">
+      <div class="kpi-icon" style="background:var(--icon-green-bg); color:var(--icon-green-tx);">🔧</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Sustentações</div>
+        <div class="kpi-value"><span id="catSustentacoesCount">0</span> <span style="font-size:12px; font-weight:normal; color:var(--gray);">de <span id="catSustentacoesTotal">0</span></span></div>
+        <div class="kpi-subtext" id="catSustentacoesPct">0%</div>
+      </div>
+    </div>
+    <div class="cat-card purple">
+      <div class="kpi-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-tx);">📋</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Demandas</div>
+        <div class="kpi-value"><span id="catDemandasCount">0</span> <span style="font-size:12px; font-weight:normal; color:var(--gray);">de <span id="catDemandasTotal">0</span></span></div>
+        <div class="kpi-subtext" id="catDemandasPct">0%</div>
+      </div>
+    </div>
+    <div class="cat-card yellow">
+      <div class="kpi-icon" style="background:var(--icon-amber-bg); color:var(--icon-amber-tx);">⚠️</div>
+      <div class="kpi-body">
+        <div class="kpi-label">Pendências</div>
+        <div class="kpi-value"><span id="catPendenciasCount">0</span> <span style="font-size:12px; font-weight:normal; color:var(--gray);">de <span id="catPendenciasTotal">0</span></span></div>
+        <div class="kpi-subtext" id="catPendenciasPct">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTROS E PESQUISA -->
+  <div class="filters-row">
+    <div class="search-field">
+      🔍 <input type="text" id="searchInput" placeholder="Buscar por ID, item, título, projeto ou sprint...">
+    </div>
+    <div class="select-field">
+      🌪️ <select id="filterTipo"><option value="">Todos os tipos</option></select>
+    </div>
+  </div>
+
+  <!-- TABELA DO BACKLOG -->
   <div class="table-wrap">
-<table>
-<thead id="tableHead"></thead>
-<tbody id="tableBody"></tbody>
-</table>
-</div>
-<div class="footer-note">Gestão de Sprints © 2026 | Painel de Controle do Backlog | Sincronizado via Firebase</div>
- 
-<script type="module" src="./app.js"></script>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 40px;">Nº</th>
+          <th style="width: 80px;">ID</th>
+          <th style="width: 180px;">Backlog Técnico</th>
+          <th>Título</th>
+          <th style="width: 120px;">Tipo</th>
+          <th style="width: 140px;">Status</th>
+          <th style="width: 110px;">Sprint</th>
+          <th style="width: 120px;">RITM</th>
+          <th style="width: 140px;">Pendência</th>
+          <th style="width: 40px;"></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="10" class="empty-state">Nenhum item encontrado. Ajuste os filtros ou adicione um novo item.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer-note">Gestão de Sprints © 2026 | Painel de Controle do Backlog | Sincronizado via Firebase</div>
+
+  <!-- MODAL DE LOGIN (COM O LAYOUT E TEXTOS SOLICITADOS) -->
+  <div id="loginModal" class="modal-overlay" style="display: none;">
+    <div class="login-modal">
+      <button class="close-modal-btn" id="closeLoginModal">✕</button>
+      
+      <div class="login-modal-header">
+        <span class="detran-badge">GESTÃO DE SPRINTS</span>
+        <p>Acesse com seu e-mail corporativo</p>
+      </div>
+
+      <form id="loginForm" onsubmit="return false;">
+        <div class="login-form-group">
+          <label>E-mail corporativo</label>
+          <div class="login-input-wrapper">
+            <span>✉️</span>
+            <input type="email" id="modalEmailInput" placeholder="catarina.lima@apoiodetran.sp.gov.br" required>
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label>Senha</label>
+          <div class="login-input-wrapper">
+            <span>🔒</span>
+            <input type="password" id="modalPasswordInput" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" id="modalLoginSubmitBtn" class="btn-login-submit">Entrar</button>
+      </form>
+
+      <a href="#" id="modalForgotPasswordBtn" class="forgot-password-link">Esqueci a minha senha</a>
+      <div id="authFeedbackMsg" class="auth-feedback"></div>
+    </div>
+  </div>
+
+<!-- FIREBASE INTEGRADO -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCLBXtg-3VvM4YTbD4OcXU_OthhFsnn8ps",
+    authDomain: "painel-de-backlog.firebaseapp.com",
+    projectId: "painel-de-backlog",
+    storageBucket: "painel-de-backlog.firebasestorage.app",
+    messagingSenderId: "863389774469",
+    appId: "1:863389774469:web:0410fdb381d493253e2fec"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const docRef = doc(db, "backlog_data", "main_state");
+
+  let currentUser = null;
+  let state = { items: [], activeSprint: "SP#18" };
+
+  const loginModal = document.getElementById("loginModal");
+  const openLoginModalBtn = document.getElementById("openLoginModalBtn");
+  const closeLoginModal = document.getElementById("closeLoginModal");
+  const loggedOutBar = document.getElementById("loggedOutBar");
+  const loggedInBar = document.getElementById("loggedInBar");
+  const userEmailSpan = document.getElementById("userEmailSpan");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  const modalEmailInput = document.getElementById("modalEmailInput");
+  const modalPasswordInput = document.getElementById("modalPasswordInput");
+  const modalLoginSubmitBtn = document.getElementById("modalLoginSubmitBtn");
+  const modalForgotPasswordBtn = document.getElementById("modalForgotPasswordBtn");
+  const authFeedbackMsg = document.getElementById("authFeedbackMsg");
+
+  openLoginModalBtn.onclick = () => {
+    loginModal.style.display = "flex";
+    authFeedbackMsg.textContent = "";
+  };
+  closeLoginModal.onclick = () => {
+    loginModal.style.display = "none";
+  };
+  window.onclick = (e) => {
+    if (e.target === loginModal) loginModal.style.display = "none";
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      loggedOutBar.style.display = "none";
+      loggedInBar.style.display = "flex";
+      userEmailSpan.textContent = `🟢 Conectado: ${user.email}`;
+      loginModal.style.display = "none";
+    } else {
+      loggedOutBar.style.display = "flex";
+      loggedInBar.style.display = "none";
+    }
+    render();
+  });
+
+  modalLoginSubmitBtn.onclick = () => {
+    const email = modalEmailInput.value.trim();
+    const pass = modalPasswordInput.value.trim();
+    authFeedbackMsg.className = "auth-feedback";
+    authFeedbackMsg.textContent = "";
+
+    if (!email || !pass) {
+      authFeedbackMsg.className = "auth-feedback error";
+      authFeedbackMsg.textContent = "Por favor, preencha o e-mail e a senha.";
+      return;
+    }
+
+    signInWithEmailAndPassword(auth, email, pass)
+      .then(() => {
+        loginModal.style.display = "none";
+      })
+      .catch((err) => {
+        authFeedbackMsg.className = "auth-feedback error";
+        authFeedbackMsg.textContent = "E-mail ou senha incorretos.";
+      });
+  };
+
+  modalForgotPasswordBtn.onclick = (e) => {
+    e.preventDefault();
+    const email = modalEmailInput.value.trim();
+    if (!email) {
+      authFeedbackMsg.className = "auth-feedback error";
+      authFeedbackMsg.textContent = "Digite seu e-mail corporativo no campo acima para redefinir.";
+      return;
+    }
+
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        authFeedbackMsg.className = "auth-feedback success";
+        authFeedbackMsg.textContent = `Enviamos um e-mail para ${email} com o link de redefinição de senha.`;
+      })
+      .catch((err) => {
+        authFeedbackMsg.className = "auth-feedback error";
+        authFeedbackMsg.textContent = "Erro ao enviar e-mail. Verifique se o e-mail está correto.";
+      });
+  };
+
+  logoutBtn.onclick = () => signOut(auth);
+
+  onSnapshot(docRef, (snap) => {
+    if (snap.exists()) {
+      state = snap.data();
+      if (!state.items) state.items = [];
+      render();
+    }
+  });
+
+  function render() {
+    const total = state.items.length;
+    const concluidos = state.items.filter(i => i.status === "Concluído").length;
+    const naoConcluidos = total - concluidos;
+    const pct = total > 0 ? Math.round((concluidos / total) * 100) : 0;
+
+    document.getElementById("kpiTotal").textContent = total;
+    document.getElementById("kpiConcluidos").textContent = concluidos;
+    document.getElementById("kpiConcluidosPct").textContent = `${pct}% do total`;
+    document.getElementById("kpiNaoConcluidos").textContent = naoConcluidos;
+    document.getElementById("kpiNaoConcluidosPct").textContent = `${total > 0 ? Math.round((naoConcluidos/total)*100) : 0}% do total`;
+    document.getElementById("kpiEntregaPct").textContent = `${pct}%`;
+    document.getElementById("kpiEntregaBar").style.width = `${pct}%`;
+
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    if (total === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" class="empty-state">Nenhum item encontrado. Ajuste os filtros ou adicione um novo item.</td></tr>`;
+      return;
+    }
+
+    state.items.forEach((item, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td><b>${item.id || ''}</b></td>
+        <td>${item.backlog || ''}</td>
+        <td><b>${item.titulo || ''}</b></td>
+        <td>${item.tipo || ''}</td>
+        <td>${item.status || ''}</td>
+        <td>${item.sprint || ''}</td>
+        <td>${item.ritm || '—'}</td>
+        <td>${item.pendencia || 'Nenhuma'}</td>
+        <td>${currentUser ? '🗑️' : ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+</script>
 </body>
 </html>
