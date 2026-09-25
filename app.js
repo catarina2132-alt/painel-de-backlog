@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+  getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import {
   getFirestore, doc, onSnapshot, setDoc
@@ -206,11 +206,60 @@ $("importSprintFileInput").onchange=async e=>{
   await persist(); renderAll();
 };
 
-const provider=new GoogleAuthProvider();
+// Mensagens de erro do Firebase Auth traduzidas para algo que a pessoa entenda
+function authErrorMessage(e){
+  const map={
+    "auth/invalid-email":"E-mail inválido.",
+    "auth/user-disabled":"Este usuário foi desativado.",
+    "auth/user-not-found":"E-mail ou senha incorretos.",
+    "auth/wrong-password":"E-mail ou senha incorretos.",
+    "auth/invalid-credential":"E-mail ou senha incorretos.",
+    "auth/too-many-requests":"Muitas tentativas. Aguarde um pouco e tente de novo.",
+    "auth/missing-password":"Digite a senha."
+  };
+  return map[e.code] || ("Falha na autenticação: "+e.message);
+}
+
 $("authActionBtn").onclick=async()=>{
-  try { currentUser ? await signOut(auth) : await signInWithPopup(auth,provider); }
-  catch(e){ console.error(e); alert("Falha na autenticação: "+e.message); }
+  if(currentUser){
+    try{ await signOut(auth); } catch(e){ console.error(e); }
+    return;
+  }
+  $("loginError").textContent="";
+  $("loginEmail").value=""; $("loginPassword").value="";
+  $("loginModalOverlay").classList.add("open");
+  $("loginEmail").focus();
 };
+$("closeLoginModalBtn").onclick=()=>$("loginModalOverlay").classList.remove("open");
+$("loginForm").onsubmit=async(e)=>{
+  e.preventDefault();
+  const email=$("loginEmail").value.trim();
+  const password=$("loginPassword").value;
+  $("loginError").textContent="";
+  $("loginSubmitBtn").disabled=true;
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
+    $("loginModalOverlay").classList.remove("open");
+  }catch(err){
+    console.error(err);
+    $("loginError").textContent=authErrorMessage(err);
+  }finally{
+    $("loginSubmitBtn").disabled=false;
+  }
+};
+$("forgotPasswordLink").onclick=async(e)=>{
+  e.preventDefault();
+  const email=$("loginEmail").value.trim();
+  if(!email) return $("loginError").textContent="Digite seu e-mail no campo acima primeiro.";
+  try{
+    await sendPasswordResetEmail(auth,email);
+    $("loginError").textContent="Enviamos um e-mail para "+email+" com o link de redefinição de senha.";
+  }catch(err){
+    console.error(err);
+    $("loginError").textContent=authErrorMessage(err);
+  }
+};
+
 onAuthStateChanged(auth,user=>{
   currentUser=user;
   $("authStatusText").textContent=user?(user.email||"Autenticado"):"Não autenticado";
