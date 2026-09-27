@@ -1,3 +1,22 @@
+/* =========================================================================
+   PAINEL DE BACKLOG — app.js
+   -------------------------------------------------------------------------
+   Este arquivo concentra TODA a lógica de negócio do painel, migrada a
+   partir da versão funcional de referência ("!DOCTYPE html claude.txt"),
+   mantendo 100% das regras e comportamentos originais.
+
+   A única mudança estrutural é a camada de persistência:
+     - ORIGINAL: localStorage (chave por chave)
+     - AQUI:     Firebase Authentication + Firestore
+                 doc(db, "backlog_data", "main_state")
+
+   Preferências puramente visuais e por navegador (qual sprint está
+   selecionada na tela, em que ordem as colunas estão dispostas) continuam
+   em localStorage, exatamente como na versão original — são preferências
+   de quem está olhando o painel naquele navegador, não dados do backlog
+   que precisem ser sincronizados entre usuários.
+========================================================================= */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 
 import {
@@ -794,7 +813,7 @@ const COLUMN_DEFS = {
       </td>`
   },
   item: {
-    label: "Backlog Técnico", thStyle: "width:220px;",
+    label: "Descrição Técnica", thStyle: "width:220px;",
     cell: (row, idx) => `<td><input class="item-input" value="${escapeAttr(row.item)}" title="${escapeAttr(row.item)}" data-field="item" data-idx="${idx}" ${canEdit() ? "" : "disabled"}></td>`
   },
   pend: {
@@ -1302,7 +1321,7 @@ function attachEvents() {
     const backlogRows = data.map(d => ({
       "ID": d.id,
       "Tipo": d.tipo,
-      "Item do Backlog Técnico": d.item,
+      "Descrição Técnica": d.item,
       "Título": d.titulo,
       "Sprint": d.sprint,
       "Projeto": d.projeto,
@@ -1421,7 +1440,7 @@ function buildImportKeyMap(sampleRow) {
     else if (nk === "tipo") keyMap.tipo = k;
     else if (["pendencia", "pendencias"].includes(nk)) keyMap.pend = k;
     else if (["identificador ritm", "identificador", "ritm", "ritm id"].includes(nk)) keyMap.ritmId = k;
-    else if (["item", "item do backlog tecnico"].includes(nk)) keyMap.item = k;
+    else if (["item", "item do backlog tecnico", "backlog tecnico", "backlog técnico", "descricao tecnica", "descrição técnica"].includes(nk)) keyMap.item = k;
     else if (["titulo", "titulo sugerido", "titulo sugerido funcional", "titulo sugerido / funcional"].includes(nk)) keyMap.titulo = k;
   });
   return keyMap;
